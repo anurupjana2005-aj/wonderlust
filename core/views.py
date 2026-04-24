@@ -70,3 +70,6 @@ def logout_view(request):
 
 def destination(request):
     return render(request, 'core/destination.html')
+
+def packages(request):
+    return render(request, 'core/packages.html')
