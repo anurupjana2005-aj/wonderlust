@@ -24,7 +24,7 @@
         <ul class="nav-links">
             <li><a href="#home">Home</a></li>
             <li><a href="{% url 'destination' %}">Destinations</a></li>
-            <li><a href="#packages">Packages</a></li>
+            <li><a href="{% url 'packages' %}">Packages</a></li>
             <li><a href="{% url 'booking' %}">Booking</a></li>
             <li><a href="#contact">Contact</a></li>
             {% if request.user.is_authenticated %}

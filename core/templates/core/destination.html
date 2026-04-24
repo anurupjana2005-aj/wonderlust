@@ -524,15 +524,15 @@
 
 <!-- Navbar -->
 <nav class="navbar">
-    <a href="index.html" class="logo"><i class="fas fa-compass"></i> Wanderlust</a>
+    <a href="{% url 'index' %}" class="logo"><i class="fas fa-compass"></i> Wanderlust</a>
     <ul class="nav-links">
-        <li><a href="index.html#home">Home</a></li>
-        <li><a href="destinations.html" class="active">Destinations</a></li>
-        <li><a href="packages.html">Packages</a></li>
-        <li><a href="booking.html">Booking</a></li>
-        <li><a href="index.html#contact">Contact</a></li>
+        <li><a href="{% url 'index' %}">Home</a></li>
+        <li><a href="{% url 'destination' %}" class="active">Destinations</a></li>
+        <li><a href="{% url 'packages' %}">Packages</a></li>
+        <li><a href="{% url 'booking' %}">Booking</a></li>
+        <li><a href="{% url 'index' %}">Contact</a></li>
     </ul>
-    <button class="btn-nav" onclick="window.location.href='packages.html'">View Packages</button>
+    <a href="{% url 'packages' %}" class="btn-nav">View Packages</a>
 </nav>
 
 <!-- Hero -->
@@ -956,7 +956,7 @@
         <h3>Ready to pack your bags?</h3>
         <p>Browse our curated packages and start your next adventure today.</p>
     </div>
-    <button class="cta-band-btn" onclick="window.location.href='packages.html'">Explore Packages →</button>
+    <a href="{% url 'packages' %}" class="cta-band-btn">Explore Packages →</a>
 </div>
 
 <!-- Footer -->
@@ -988,7 +988,7 @@
             </div>
             <div class="modal-highlights" id="modalHighlights"></div>
             <div class="modal-footer">
-                <button class="modal-book-btn" onclick="window.location.href='packages.html'">View Packages →</button>
+                <a href="{% url 'packages' %}" class="modal-book-btn">View Packages →</a>
                 <button class="modal-close-btn" onclick="closeModal()">Close</button>
             </div>
         </div>
