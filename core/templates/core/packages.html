@@ -1,0 +1,753 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tour Packages – Wanderlust Travels</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --ink:    #1a1410;
+            --cream:  #f7f3ec;
+            --sand:   #e8dcc8;
+            --rust:   #c0522a;
+            --gold:   #b8924a;
+            --muted:  #7a6e62;
+            --white:  #ffffff;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--cream);
+            color: var(--ink);
+            overflow-x: hidden;
+        }
+
+        /* ── Navbar ── */
+        .navbar {
+            position: fixed; top: 0; width: 100%; z-index: 100;
+            background: rgba(247,243,236,0.92);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--sand);
+            padding: 0 5%;
+            display: flex; align-items: center; justify-content: space-between;
+            height: 68px;
+        }
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.6rem; font-weight: 600;
+            color: var(--ink); text-decoration: none;
+            display: flex; align-items: center; gap: .4rem;
+        }
+        .logo i { color: var(--rust); }
+        .nav-links { display: flex; align-items: center; gap: 2rem; list-style: none; }
+        .nav-links a {
+            text-decoration: none; color: var(--muted);
+            font-size: .85rem; letter-spacing: .05em; text-transform: uppercase;
+            transition: color .2s;
+        }
+        .nav-links a:hover, .nav-links a.active { color: var(--rust); }
+        .btn-nav {
+            background: var(--rust); color: var(--white);
+            border: none; padding: .45rem 1.2rem;
+            border-radius: 2px; cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .82rem; letter-spacing: .06em; text-transform: uppercase;
+            transition: background .2s;
+        }
+        .btn-nav:hover { background: var(--gold); }
+
+        /* ── Hero Banner ── */
+        .pkg-hero {
+            margin-top: 68px;
+            height: 52vh; min-height: 340px;
+            background: linear-gradient(135deg, #1a1410 0%, #3d2b1f 60%, #c0522a 100%);
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            text-align: center;
+            position: relative; overflow: hidden;
+        }
+        .pkg-hero::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: url('https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1400') center/cover no-repeat;
+            opacity: .18;
+        }
+        .pkg-hero-inner { position: relative; z-index: 1; padding: 0 1rem; }
+        .pkg-hero-label {
+            font-size: .75rem; letter-spacing: .22em; text-transform: uppercase;
+            color: var(--gold); margin-bottom: .8rem;
+        }
+        .pkg-hero h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2.6rem, 6vw, 5rem);
+            font-weight: 300; color: var(--white);
+            line-height: 1.1; margin-bottom: 1rem;
+        }
+        .pkg-hero h1 em { font-style: italic; color: var(--gold); }
+        .pkg-hero p {
+            color: rgba(255,255,255,.65); font-size: .95rem; max-width: 440px;
+        }
+
+        /* ── Filter Bar ── */
+        .filter-bar {
+            background: var(--white);
+            border-bottom: 1px solid var(--sand);
+            padding: 1rem 5%;
+            display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+        }
+        .filter-label {
+            font-size: .75rem; letter-spacing: .12em; text-transform: uppercase;
+            color: var(--muted); white-space: nowrap;
+        }
+        .filters { display: flex; gap: .6rem; flex-wrap: wrap; }
+        .filter-btn {
+            background: none; border: 1px solid var(--sand);
+            color: var(--ink); padding: .38rem .95rem;
+            border-radius: 2px; cursor: pointer;
+            font-family: 'DM Sans', sans-serif; font-size: .82rem;
+            transition: all .2s;
+        }
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--rust); border-color: var(--rust); color: var(--white);
+        }
+        .filter-sort {
+            margin-left: auto;
+            background: none; border: 1px solid var(--sand);
+            color: var(--ink); padding: .38rem .9rem;
+            border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: .82rem;
+            cursor: pointer;
+        }
+
+        /* ── Package Grid ── */
+        .packages-section { padding: 4rem 5% 6rem; }
+
+        .packages-section > .section-meta {
+            display: flex; align-items: baseline; justify-content: space-between;
+            margin-bottom: 2.5rem;
+        }
+        .section-meta h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem; font-weight: 400;
+        }
+        .section-meta span { font-size: .82rem; color: var(--muted); }
+
+        .pkg-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2px;
+        }
+
+        /* Card */
+        .pkg-card {
+            background: var(--white);
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            transition: transform .35s ease, box-shadow .35s ease;
+            opacity: 0;
+            transform: translateY(28px);
+            animation: fadeUp .55s forwards;
+        }
+        .pkg-card:nth-child(1) { animation-delay: .05s; }
+        .pkg-card:nth-child(2) { animation-delay: .12s; }
+        .pkg-card:nth-child(3) { animation-delay: .19s; }
+        .pkg-card:nth-child(4) { animation-delay: .26s; }
+        .pkg-card:nth-child(5) { animation-delay: .33s; }
+        .pkg-card:nth-child(6) { animation-delay: .40s; }
+
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .pkg-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 24px 60px rgba(26,20,16,.18);
+            z-index: 2;
+        }
+
+        .card-img-wrap {
+            position: relative; overflow: hidden; height: 230px;
+        }
+        .card-img-wrap img {
+            width: 100%; height: 100%; object-fit: cover;
+            transition: transform .5s ease;
+        }
+        .pkg-card:hover .card-img-wrap img { transform: scale(1.07); }
+
+        .badge {
+            position: absolute; top: 1rem; left: 1rem;
+            background: var(--rust); color: var(--white);
+            font-size: .68rem; letter-spacing: .1em; text-transform: uppercase;
+            padding: .28rem .65rem; border-radius: 2px;
+        }
+        .badge.popular { background: var(--gold); }
+        .badge.new { background: #2a7c6f; }
+
+        .card-body { padding: 1.4rem 1.5rem 1.6rem; }
+        .card-category {
+            font-size: .7rem; letter-spacing: .14em; text-transform: uppercase;
+            color: var(--muted); margin-bottom: .45rem;
+        }
+        .card-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.55rem; font-weight: 400; line-height: 1.2;
+            margin-bottom: .6rem;
+        }
+        .card-meta {
+            display: flex; gap: 1.2rem; margin-bottom: 1rem;
+            font-size: .8rem; color: var(--muted);
+        }
+        .card-meta span { display: flex; align-items: center; gap: .3rem; }
+        .card-meta i { color: var(--gold); }
+
+        .card-highlights {
+            display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1.3rem;
+        }
+        .highlight-tag {
+            background: var(--cream); border: 1px solid var(--sand);
+            font-size: .72rem; padding: .22rem .6rem; border-radius: 2px;
+            color: var(--ink);
+        }
+
+        .card-footer {
+            display: flex; align-items: center; justify-content: space-between;
+            border-top: 1px solid var(--sand); padding-top: 1rem;
+        }
+        .price-wrap .price-label {
+            font-size: .68rem; color: var(--muted); text-transform: uppercase;
+            letter-spacing: .08em;
+        }
+        .price-wrap .price {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.7rem; font-weight: 600; color: var(--rust);
+            line-height: 1;
+        }
+        .price-wrap .price-sub {
+            font-size: .7rem; color: var(--muted);
+        }
+        .stars { color: var(--gold); font-size: .8rem; letter-spacing: .05em; }
+        .rating-count { font-size: .72rem; color: var(--muted); }
+
+        .book-btn {
+            background: var(--ink); color: var(--white);
+            border: none; padding: .65rem 1.4rem;
+            border-radius: 2px; cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .82rem; letter-spacing: .06em; text-transform: uppercase;
+            transition: background .2s;
+        }
+        .book-btn:hover { background: var(--rust); }
+
+        /* ── Featured Wide Card ── */
+        .pkg-card.wide {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+        .pkg-card.wide .card-img-wrap { height: 100%; min-height: 280px; }
+        .pkg-card.wide .card-body {
+            display: flex; flex-direction: column; justify-content: center;
+            padding: 2.5rem 3rem;
+        }
+        .pkg-card.wide .card-title { font-size: 2.3rem; }
+
+        /* ── Why Choose ── */
+        .why-section {
+            background: var(--ink); color: var(--white);
+            padding: 5rem 5%;
+            display: grid; grid-template-columns: 1fr 2fr; gap: 4rem;
+            align-items: center;
+        }
+        .why-section h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2rem, 4vw, 3.2rem);
+            font-weight: 300; line-height: 1.1;
+        }
+        .why-section h2 em { color: var(--gold); font-style: italic; }
+        .why-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;
+        }
+        .why-item {
+            display: flex; flex-direction: column; align-items: center; text-align: center; }
+    
+        .why-item i {
+            font-size: 1.4rem; color: var(--gold); margin-bottom: .8rem;
+        }
+        .why-item h4 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.15rem; font-weight: 600; margin-bottom: .4rem;
+        }
+        .why-item p { font-size: .83rem; color: rgba(255,255,255,.55); line-height: 1.65; }
+
+        /* ── CTA Banner ── */
+        .cta-band {
+            background: var(--rust);
+            padding: 3.5rem 5%;
+            display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 1.5rem;
+        }
+        .cta-band-text h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem; font-weight: 400; color: var(--white);
+        }
+        .cta-band-text p { color: rgba(255,255,255,.7); font-size: .9rem; margin-top: .3rem; }
+        .cta-band-btn {
+            background: var(--white); color: var(--rust);
+            border: none; padding: .85rem 2rem;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .88rem; letter-spacing: .08em; text-transform: uppercase;
+            cursor: pointer; border-radius: 2px;
+            transition: background .2s, color .2s;
+        }
+        .cta-band-btn:hover { background: var(--ink); color: var(--white); }
+
+        /* ── Footer ── */
+        .footer {
+            background: #110d0a; color: rgba(255,255,255,.35);
+            text-align: center; padding: 1.5rem;
+            font-size: .8rem; letter-spacing: .05em;
+        }
+
+        /* ── Modal ── */
+        .modal {
+            display: none; position: fixed; inset: 0; z-index: 200;
+            background: rgba(26,20,16,.7); backdrop-filter: blur(4px);
+            align-items: center; justify-content: center;
+        }
+        .modal.open { display: flex; }
+        .modal-box {
+            background: var(--white); width: 90%; max-width: 500px;
+            border-radius: 2px; overflow: hidden;
+            animation: modalIn .3s ease;
+        }
+        @keyframes modalIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .modal-header {
+            background: var(--ink); color: var(--white);
+            padding: 1.6rem 1.8rem;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .modal-header h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem; font-weight: 400;
+        }
+        .modal-header .close-x {
+            background: none; border: none; color: rgba(255,255,255,.5);
+            font-size: 1.4rem; cursor: pointer; line-height: 1;
+        }
+        .modal-header .close-x:hover { color: var(--white); }
+        .modal-body { padding: 1.8rem; }
+        .modal-body label {
+            display: block; font-size: .75rem; letter-spacing: .1em;
+            text-transform: uppercase; color: var(--muted); margin-bottom: .35rem;
+        }
+        .modal-body input, .modal-body select {
+            width: 100%; border: 1px solid var(--sand);
+            background: var(--cream); padding: .65rem .9rem;
+            border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: .9rem;
+            margin-bottom: 1rem; color: var(--ink); outline: none;
+            transition: border-color .2s;
+        }
+        .modal-body input:focus, .modal-body select:focus { border-color: var(--rust); }
+        .modal-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .modal-submit {
+            width: 100%; background: var(--rust); color: var(--white);
+            border: none; padding: .85rem;
+            border-radius: 2px; font-family: 'DM Sans', sans-serif;
+            font-size: .88rem; letter-spacing: .08em; text-transform: uppercase;
+            cursor: pointer; margin-top: .5rem; transition: background .2s;
+        }
+        .modal-submit:hover { background: var(--ink); }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .pkg-card.wide { grid-template-columns: 1fr; }
+            .why-section { grid-template-columns: 1fr; gap: 2rem; }
+            .why-grid { grid-template-columns: 1fr; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+    <a href="{% url 'index' %}" class="logo"><i class="fas fa-compass"></i> Wanderlust</a>
+    <ul class="nav-links">
+        <li><a href="{% url 'index' %}">Home</a></li>
+        <li><a href="{% url 'destination' %}">Destinations</a></li>
+        <li><a href="{% url 'packages' %}" class="active">Packages</a></li>
+        <li><a href="{% url 'booking' %}">Booking</a></li>
+    </ul>
+    <button class="btn-nav" onclick="openBookingModal()">Book a Trip</button>
+</nav>
+
+<!-- Hero -->
+<section class="pkg-hero">
+    <div class="pkg-hero-inner">
+        <p class="pkg-hero-label"><i class="fas fa-map-marked-alt"></i> &nbsp; Curated Journeys</p>
+        <h1>Our <em>Finest</em><br>Tour Packages</h1>
+        <p>Handpicked experiences for every kind of traveller — from serene beaches to towering peaks.</p>
+    </div>
+</section>
+
+<!-- Filter Bar -->
+<div class="filter-bar">
+    <span class="filter-label">Filter by</span>
+    <div class="filters">
+        <button class="filter-btn active" onclick="filterPkgs('all', this)">All</button>
+        <button class="filter-btn" onclick="filterPkgs('beach', this)">Beach</button>
+        <button class="filter-btn" onclick="filterPkgs('mountain', this)">Mountain</button>
+        <button class="filter-btn" onclick="filterPkgs('cultural', this)">Cultural</button>
+        <button class="filter-btn" onclick="filterPkgs('wildlife', this)">Wildlife</button>
+        <button class="filter-btn" onclick="filterPkgs('luxury', this)">Luxury</button>
+    </div>
+    <select class="filter-sort">
+        <option>Sort: Featured</option>
+        <option>Price: Low to High</option>
+        <option>Price: High to Low</option>
+        <option>Duration</option>
+    </select>
+</div>
+
+<!-- Packages Grid -->
+<section class="packages-section">
+    <div class="section-meta">
+        <h2>Available Packages</h2>
+        <span id="pkg-count">6 packages found</span>
+    </div>
+
+    <div class="pkg-grid" id="pkgGrid">
+
+        <!-- FEATURED WIDE -->
+        <div class="pkg-card wide" data-cat="luxury beach">
+            <div class="card-img-wrap">
+                <span class="badge popular">⭐ Featured</span>
+                <img src="https://images.unsplash.com/photo-1573843981267-be1999ff37cd?w=900" alt="Maldives Luxury">
+            </div>
+            <div class="card-body">
+                <p class="card-category">Luxury · Beach · 8 Nights</p>
+                <h3 class="card-title">Maldives Overwater Escape</h3>
+                <div class="card-meta">
+                    <span><i class="fas fa-clock"></i> 9 Days</span>
+                    <span><i class="fas fa-users"></i> 2 People</span>
+                    <span><i class="fas fa-utensils"></i> All-Inclusive</span>
+                </div>
+                <div class="card-highlights">
+                    <span class="highlight-tag">Overwater Villa</span>
+                    <span class="highlight-tag">Snorkelling</span>
+                    <span class="highlight-tag">Sunset Cruise</span>
+                    <span class="highlight-tag">Spa Included</span>
+                </div>
+                <div class="card-footer">
+                    <div class="price-wrap">
+                        <div class="price-label">Starting from</div>
+                        <div class="price">₹1,85,000</div>
+                        <div class="price-sub">per couple</div>
+                    </div>
+                    <div>
+                        <div class="stars">★★★★★</div>
+                        <div class="rating-count">4.9 · 238 reviews</div>
+                        <button class="book-btn" style="margin-top:.7rem" onclick="openBookingModal('Maldives Overwater Escape')">Book Now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CARD 1 -->
+        <div class="pkg-card" data-cat="beach">
+            <div class="card-img-wrap">
+                <span class="badge">Beach</span>
+                <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=700" alt="Goa Beach">
+            </div>
+            <div class="card-body">
+                <p class="card-category">Beach · 4 Nights</p>
+                <h3 class="card-title">Goa Beach Escape</h3>
+                <div class="card-meta">
+                    <span><i class="fas fa-clock"></i> 5 Days</span>
+                    <span><i class="fas fa-users"></i> 2 Pax</span>
+                    <span><i class="fas fa-utensils"></i> Breakfast</span>
+                </div>
+                <div class="card-highlights">
+                    <span class="highlight-tag">Water Sports</span>
+                    <span class="highlight-tag">Night Markets</span>
+                    <span class="highlight-tag">Beach Shacks</span>
+                </div>
+                <div class="card-footer">
+                    <div class="price-wrap">
+                        <div class="price-label">From</div>
+                        <div class="price">₹25,000</div>
+                        <div class="price-sub">per person</div>
+                    </div>
+                    <button class="book-btn" onclick="openBookingModal('Goa Beach Escape')">Book Now</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CARD 2 -->
+        <div class="pkg-card" data-cat="mountain">
+            <div class="card-img-wrap">
+                <span class="badge popular">Popular</span>
+                <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=700" alt="Mountain Adventure">
+            </div>
+            <div class="card-body">
+                <p class="card-category">Mountain · 6 Nights</p>
+                <h3 class="card-title">Himalayan Adventure</h3>
+                <div class="card-meta">
+                    <span><i class="fas fa-clock"></i> 7 Days</span>
+                    <span><i class="fas fa-users"></i> 4 Pax</span>
+                    <span><i class="fas fa-utensils"></i> Half Board</span>
+                </div>
+                <div class="card-highlights">
+                    <span class="highlight-tag">Trekking</span>
+                    <span class="highlight-tag">Camping</span>
+                    <span class="highlight-tag">River Rafting</span>
+                </div>
+                <div class="card-footer">
+                    <div class="price-wrap">
+                        <div class="price-label">From</div>
+                        <div class="price">₹40,000</div>
+                        <div class="price-sub">per person</div>
+                    </div>
+                    <button class="book-btn" onclick="openBookingModal('Himalayan Adventure')">Book Now</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CARD 3 -->
+        <div class="pkg-card" data-cat="cultural">
+            <div class="card-img-wrap">
+                <span class="badge new">New</span>
+                <img src="https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=700" alt="Rajasthan Heritage">
+            </div>
+            <div class="card-body">
+                <p class="card-category">Cultural · 7 Nights</p>
+                <h3 class="card-title">Rajasthan Heritage Tour</h3>
+                <div class="card-meta">
+                    <span><i class="fas fa-clock"></i> 8 Days</span>
+                    <span><i class="fas fa-users"></i> 2 Pax</span>
+                    <span><i class="fas fa-utensils"></i> Breakfast</span>
+                </div>
+                <div class="card-highlights">
+                    <span class="highlight-tag">Palace Stays</span>
+                    <span class="highlight-tag">Camel Safari</span>
+                    <span class="highlight-tag">Folk Evenings</span>
+                </div>
+                <div class="card-footer">
+                    <div class="price-wrap">
+                        <div class="price-label">From</div>
+                        <div class="price">₹55,000</div>
+                        <div class="price-sub">per person</div>
+                    </div>
+                    <button class="book-btn" onclick="openBookingModal('Rajasthan Heritage Tour')">Book Now</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CARD 4 -->
+        <div class="pkg-card" data-cat="wildlife">
+            <div class="card-img-wrap">
+                <span class="badge">Wildlife</span>
+                <img src="https://images.unsplash.com/photo-1504214208698-ea1916a2195a?w=700" alt="Kerala Wildlife">
+            </div>
+            <div class="card-body">
+                <p class="card-category">Wildlife · 5 Nights</p>
+                <h3 class="card-title">Kerala Backwater & Wildlife</h3>
+                <div class="card-meta">
+                    <span><i class="fas fa-clock"></i> 6 Days</span>
+                    <span><i class="fas fa-users"></i> 2 Pax</span>
+                    <span><i class="fas fa-utensils"></i> All Meals</span>
+                </div>
+                <div class="card-highlights">
+                    <span class="highlight-tag">Houseboat</span>
+                    <span class="highlight-tag">Jungle Safari</span>
+                    <span class="highlight-tag">Ayurveda Spa</span>
+                </div>
+                <div class="card-footer">
+                    <div class="price-wrap">
+                        <div class="price-label">From</div>
+                        <div class="price">₹38,000</div>
+                        <div class="price-sub">per person</div>
+                    </div>
+                    <button class="book-btn" onclick="openBookingModal('Kerala Backwater & Wildlife')">Book Now</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CARD 5 -->
+        <div class="pkg-card" data-cat="mountain cultural">
+            <div class="card-img-wrap">
+                <span class="badge popular">Popular</span>
+                <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=700" alt="Sikkim">
+            </div>
+            <div class="card-body">
+                <p class="card-category">Mountain · 6 Nights</p>
+                <h3 class="card-title">Sikkim Serenity</h3>
+                <div class="card-meta">
+                    <span><i class="fas fa-clock"></i> 7 Days</span>
+                    <span><i class="fas fa-users"></i> 2 Pax</span>
+                    <span><i class="fas fa-utensils"></i> Breakfast</span>
+                </div>
+                <div class="card-highlights">
+                    <span class="highlight-tag">Monastery Visits</span>
+                    <span class="highlight-tag">Snowfall</span>
+                    <span class="highlight-tag">Cable Car</span>
+                </div>
+                <div class="card-footer">
+                    <div class="price-wrap">
+                        <div class="price-label">From</div>
+                        <div class="price">₹32,000</div>
+                        <div class="price-sub">per person</div>
+                    </div>
+                    <button class="book-btn" onclick="openBookingModal('Sikkim Serenity')">Book Now</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- Why Choose -->
+<section class="why-section">
+    <div>
+        <h2>Why Travel<br>with <em>Wanderlust</em>?</h2>
+    </div>
+    <div class="why-grid">
+        <div class="why-item">
+            <i class="fas fa-shield-alt"></i>
+            <h4>100% Safe & Trusted</h4>
+            <p>All packages are verified, insured, and backed by our satisfaction guarantee.</p>
+        </div>
+        <div class="why-item">
+            <i class="fas fa-headset"></i>
+            <h4>24/7 Travel Support</h4>
+            <p>Our dedicated team is available round the clock for any assistance on the road.</p>
+        </div>
+        <div class="why-item">
+            <i class="fas fa-tags"></i>
+            <h4>Best Price Guarantee</h4>
+            <p>Find it cheaper elsewhere? We'll match it — and give you an extra 5% off.</p>
+        </div>
+        <div class="why-item">
+            <i class="fas fa-map"></i>
+            <h4>Expert Itineraries</h4>
+            <p>Crafted by seasoned travellers who know every hidden gem in each destination.</p>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Band -->
+<div class="cta-band">
+    <div class="cta-band-text">
+        <h3>Can't find the perfect package?</h3>
+        <p>Let us build a custom itinerary just for you — free of charge.</p>
+    </div>
+    <button class="cta-band-btn" onclick="openBookingModal()">Request Custom Trip</button>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+    <p>© 2026 Wanderlust Travels &nbsp;·&nbsp; support@wanderlust.com &nbsp;·&nbsp; +91 98765 43210</p>
+</footer>
+
+<!-- Booking Modal -->
+<div class="modal" id="bookingModal" onclick="handleModalClick(event)">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3 id="modalTitle">Book Your Trip</h3>
+            <button class="close-x" onclick="closeBookingModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <label>Select Package</label>
+            <select id="modalPkg">
+                <option value="" disabled selected>— Choose a package —</option>
+                <option value="Maldives Overwater Escape">Maldives Overwater Escape — ₹1,85,000</option>
+                <option value="Goa Beach Escape">Goa Beach Escape — ₹25,000</option>
+                <option value="Himalayan Adventure">Himalayan Adventure — ₹40,000</option>
+                <option value="Rajasthan Heritage Tour">Rajasthan Heritage Tour — ₹55,000</option>
+                <option value="Kerala Backwater & Wildlife">Kerala Backwater &amp; Wildlife — ₹38,000</option>
+                <option value="Sikkim Serenity">Sikkim Serenity — ₹32,000</option>
+            </select>
+            <label>Full Name</label>
+            <input type="text" placeholder="Your full name">
+            <div class="modal-row">
+                <div>
+                    <label>Email Address</label>
+                    <input type="email" placeholder="your@email.com">
+                </div>
+                <div>
+                    <label>Mobile Number</label>
+                    <input type="tel" placeholder="+91 98765 43210">
+                </div>
+            </div>
+            <div class="modal-row">
+                <div>
+                    <label>Travel Date</label>
+                    <input type="date">
+                </div>
+                <div>
+                    <label>No. of Travellers</label>
+                    <select>
+                        <option>1 Person</option>
+                        <option selected>2 People</option>
+                        <option>3 People</option>
+                        <option>4 People</option>
+                        <option>5+ People</option>
+                    </select>
+                </div>
+            </div>
+            <label>Special Requests</label>
+            <input type="text" placeholder="Dietary needs, accessibility, etc.">
+            <button class="modal-submit" onclick="submitBooking()">Confirm Booking →</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    /* Filter */
+    function filterPkgs(cat, btn) {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const cards = document.querySelectorAll('.pkg-card');
+        let count = 0;
+        cards.forEach(c => {
+            const cats = c.dataset.cat || '';
+            const show = cat === 'all' || cats.includes(cat);
+            c.style.display = show ? '' : 'none';
+            if (show) count++;
+        });
+        document.getElementById('pkg-count').textContent = count + ' package' + (count !== 1 ? 's' : '') + ' found';
+    }
+
+    /* Modal */
+    function openBookingModal(pkg) {
+        const sel = document.getElementById('modalPkg');
+        if (pkg) {
+            for (let opt of sel.options) { if (opt.value === pkg) { sel.value = pkg; break; } }
+        } else { sel.selectedIndex = 0; }
+        document.getElementById('modalTitle').textContent = pkg ? 'Book: ' + pkg : 'Book Your Trip';
+        document.getElementById('bookingModal').classList.add('open');
+    }
+    function closeBookingModal() {
+        document.getElementById('bookingModal').classList.remove('open');
+    }
+    function handleModalClick(e) {
+        if (e.target === document.getElementById('bookingModal')) closeBookingModal();
+    }
+    function submitBooking() {
+        alert('Booking request submitted! Our team will contact you within 24 hours.');
+        closeBookingModal();
+    }
+</script>
+
+</body>
+</html>
