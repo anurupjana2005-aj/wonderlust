@@ -23,7 +23,7 @@
         </a>
         <ul class="nav-links">
             <li><a href="#home">Home</a></li>
-            <li><a href="#destinations">Destinations</a></li>
+            <li><a href="{% url 'destination' %}">Destinations</a></li>
             <li><a href="#packages">Packages</a></li>
             <li><a href="{% url 'booking' %}">Booking</a></li>
             <li><a href="#contact">Contact</a></li>
@@ -42,11 +42,7 @@
     <div class="hero-content">
         <h1>Discover Your Next Destination</h1>
         <p>Explore breathtaking destinations around the world with us</p>
-
-        <div class="search-box">
-            <input type="text" placeholder="Enter Your Destination">
-            <button class="btn btn-primary">Search</button>
-        </div>
+    </div>
 </section>
 
 <!-- Destinations -->
@@ -59,7 +55,6 @@
                 <div class="destination-info">
                     <h3>Bali, Indonesia</h3>
                     <p>⭐⭐⭐⭐☆</p>
-                    <a class="btn btn-outline" href="#">Explore</a>
                 </div>
             </div>
 
@@ -68,7 +63,6 @@
                 <div class="destination-info">
                     <h3>Paris, France</h3>
                     <p>⭐⭐⭐⭐⭐</p>
-                    <a class="btn btn-outline" href="#">Explore</a>
                 </div>
             </div>
 
@@ -76,9 +70,8 @@
                 <img src="https://images.unsplash.com/photo-1504214208698-ea1916a2195a?w=600">
                 <div class="destination-info">
                     <h3>Tokyo, Japan</h3>
-                    <p>⭐⭐⭐⭐☆</p>
-                    <a class="btn btn-outline" href="#">Explore</a>
-                </div>
+                    <p>⭐⭐⭐⭐☆</p>               
+                 </div>
             </div>
         </div>
     </div>
@@ -93,10 +86,6 @@
                 <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600">
                 <div class="package-info">
                     <h3>Beach Escape</h3>
-                    <p>₹25,000</p>
-                    <a href="{% url 'booking' %}">
-                        <button class="btn btn-primary">Book Now</button>
-                    </a>
                 </div>
             </div>
 
@@ -104,10 +93,7 @@
                 <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=600">
                 <div class="package-info">
                     <h3>Mountain Adventure</h3>
-                    <p>₹40,000</p>
-                    <a href="{% url 'booking' %}">
-                        <button class="btn btn-primary">Book Now</button>
-                    </a>
+                   
                 </div>
             </div>
         </div>

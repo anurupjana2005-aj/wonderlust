@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Destinations – Wanderlust Travels</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --ink:   #1a1410;
+            --cream: #f7f3ec;
+            --sand:  #e8dcc8;
+            --rust:  #c0522a;
+            --gold:  #b8924a;
+            --muted: #7a6e62;
+            --white: #ffffff;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--cream);
+            color: var(--ink);
+            overflow-x: hidden;
+        }
+
+        /* ── Navbar ── */
+        .navbar {
+            position: fixed; top: 0; width: 100%; z-index: 100;
+            background: rgba(247,243,236,0.92);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--sand);
+            padding: 0 5%;
+            display: flex; align-items: center; justify-content: space-between;
+            height: 68px;
+        }
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.6rem; font-weight: 600;
+            color: var(--ink); text-decoration: none;
+            display: flex; align-items: center; gap: .4rem;
+        }
+        .logo i { color: var(--rust); }
+        .nav-links { display: flex; align-items: center; gap: 2rem; list-style: none; }
+        .nav-links a {
+            text-decoration: none; color: var(--muted);
+            font-size: .85rem; letter-spacing: .05em; text-transform: uppercase;
+            transition: color .2s;
+        }
+        .nav-links a:hover, .nav-links a.active { color: var(--rust); }
+        .btn-nav {
+            background: var(--rust); color: var(--white);
+            border: none; padding: .45rem 1.2rem;
+            border-radius: 2px; cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .82rem; letter-spacing: .06em; text-transform: uppercase;
+            transition: background .2s;
+        }
+        .btn-nav:hover { background: var(--gold); }
+
+        /* ── Hero ── */
+        .dest-hero {
+            margin-top: 68px;
+            height: 65vh; min-height: 420px;
+            position: relative; overflow: hidden;
+            display: flex; align-items: flex-end;
+        }
+        .dest-hero-bg {
+            position: absolute; inset: 0;
+            background: url('https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1600') center/cover no-repeat;
+            transform: scale(1.04);
+            animation: slowZoom 14s ease-in-out infinite alternate;
+        }
+        @keyframes slowZoom {
+            from { transform: scale(1.04); }
+            to   { transform: scale(1.12); }
+        }
+        .dest-hero-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(to top, rgba(26,20,16,.85) 0%, rgba(26,20,16,.25) 55%, transparent 100%);
+        }
+        .dest-hero-content {
+            position: relative; z-index: 1;
+            padding: 3.5rem 5%; width: 100%;
+            display: flex; align-items: flex-end; justify-content: space-between;
+            flex-wrap: wrap; gap: 1.5rem;
+        }
+        .dest-hero-text .eyebrow {
+            font-size: .75rem; letter-spacing: .22em; text-transform: uppercase;
+            color: var(--gold); margin-bottom: .8rem;
+        }
+        .dest-hero-text h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(3rem, 7vw, 6rem);
+            font-weight: 300; color: var(--white);
+            line-height: 1; margin-bottom: .6rem;
+        }
+        .dest-hero-text h1 em { font-style: italic; color: var(--gold); }
+        .dest-hero-text p {
+            color: rgba(255,255,255,.65); font-size: .95rem;
+        }
+        .dest-hero-stats {
+            display: flex; gap: 2.5rem;
+        }
+        .stat { text-align: center; }
+        .stat-num {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.2rem; font-weight: 600; color: var(--white);
+            line-height: 1;
+        }
+        .stat-label {
+            font-size: .72rem; letter-spacing: .1em; text-transform: uppercase;
+            color: rgba(255,255,255,.5); margin-top: .2rem;
+        }
+
+        /* ── Search & Filter ── */
+        .search-filter-bar {
+            background: var(--white);
+            border-bottom: 1px solid var(--sand);
+            padding: 1rem 5%;
+            display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+        }
+        .search-wrap {
+            display: flex; align-items: center;
+            border: 1px solid var(--sand); border-radius: 2px;
+            background: var(--cream); overflow: hidden;
+            flex: 1; min-width: 200px; max-width: 320px;
+        }
+        .search-wrap i {
+            padding: 0 .75rem; color: var(--muted); font-size: .85rem;
+        }
+        .search-wrap input {
+            border: none; background: none; outline: none;
+            font-family: 'DM Sans', sans-serif; font-size: .85rem;
+            color: var(--ink); padding: .55rem .5rem .55rem 0;
+            width: 100%;
+        }
+        .filter-label {
+            font-size: .75rem; letter-spacing: .12em; text-transform: uppercase;
+            color: var(--muted); white-space: nowrap;
+        }
+        .filters { display: flex; gap: .5rem; flex-wrap: wrap; }
+        .filter-btn {
+            background: none; border: 1px solid var(--sand);
+            color: var(--ink); padding: .38rem .9rem;
+            border-radius: 2px; cursor: pointer;
+            font-family: 'DM Sans', sans-serif; font-size: .82rem;
+            transition: all .2s;
+        }
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--rust); border-color: var(--rust); color: var(--white);
+        }
+        .filter-sort {
+            margin-left: auto;
+            background: none; border: 1px solid var(--sand);
+            color: var(--ink); padding: .38rem .9rem;
+            border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: .82rem;
+            cursor: pointer; outline: none;
+        }
+
+        /* ── Destinations Grid ── */
+        .dest-section { padding: 4rem 5% 6rem; }
+        .section-meta {
+            display: flex; align-items: baseline; justify-content: space-between;
+            margin-bottom: 2.5rem;
+        }
+        .section-meta h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem; font-weight: 400;
+        }
+        .section-meta span { font-size: .82rem; color: var(--muted); }
+
+        /* Masonry-ish grid using CSS grid areas for visual variety */
+        .dest-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 3px;
+        }
+
+        /* Card placements */
+        .dest-card:nth-child(1) { grid-column: span 5; grid-row: span 2; }
+        .dest-card:nth-child(2) { grid-column: span 4; }
+        .dest-card:nth-child(3) { grid-column: span 3; }
+        .dest-card:nth-child(4) { grid-column: span 4; }
+        .dest-card:nth-child(5) { grid-column: span 3; }
+        .dest-card:nth-child(6) { grid-column: span 4; }
+        .dest-card:nth-child(7) { grid-column: span 3; }
+        .dest-card:nth-child(8) { grid-column: span 3; }
+        .dest-card:nth-child(9) { grid-column: span 5; grid-row: span 2; }
+        .dest-card:nth-child(10){ grid-column: span 4; }
+
+        /* Card base */
+        .dest-card {
+            position: relative; overflow: hidden;
+            cursor: pointer;
+            min-height: 260px;
+            opacity: 0; transform: translateY(24px);
+            animation: fadeUp .55s forwards;
+        }
+        .dest-card:nth-child(1)  { animation-delay: .04s; }
+        .dest-card:nth-child(2)  { animation-delay: .10s; }
+        .dest-card:nth-child(3)  { animation-delay: .16s; }
+        .dest-card:nth-child(4)  { animation-delay: .22s; }
+        .dest-card:nth-child(5)  { animation-delay: .28s; }
+        .dest-card:nth-child(6)  { animation-delay: .34s; }
+        .dest-card:nth-child(7)  { animation-delay: .40s; }
+        .dest-card:nth-child(8)  { animation-delay: .46s; }
+        .dest-card:nth-child(9)  { animation-delay: .52s; }
+        .dest-card:nth-child(10) { animation-delay: .58s; }
+
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dest-card img {
+            width: 100%; height: 100%; object-fit: cover;
+            transition: transform .6s ease;
+            display: block;
+        }
+        .dest-card:hover img { transform: scale(1.08); }
+
+        .dest-card-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(to top, rgba(26,20,16,.88) 0%, rgba(26,20,16,.1) 55%, transparent 100%);
+            display: flex; flex-direction: column; justify-content: flex-end;
+            padding: 1.5rem;
+            transition: background .4s;
+        }
+        .dest-card:hover .dest-card-overlay {
+            background: linear-gradient(to top, rgba(26,20,16,.92) 0%, rgba(26,20,16,.35) 70%, rgba(26,20,16,.08) 100%);
+        }
+
+        .dest-region {
+            font-size: .68rem; letter-spacing: .18em; text-transform: uppercase;
+            color: var(--gold); margin-bottom: .3rem;
+        }
+        .dest-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.6rem; font-weight: 400; color: var(--white);
+            line-height: 1.1; margin-bottom: .4rem;
+        }
+        .dest-card:nth-child(1) .dest-name,
+        .dest-card:nth-child(9) .dest-name { font-size: 2.2rem; }
+
+        .dest-meta {
+            display: flex; gap: 1rem; margin-bottom: .8rem;
+            font-size: .75rem; color: rgba(255,255,255,.6);
+        }
+        .dest-meta span { display: flex; align-items: center; gap: .3rem; }
+        .dest-meta i { color: var(--gold); font-size: .7rem; }
+
+        .dest-tags {
+            display: flex; flex-wrap: wrap; gap: .35rem; margin-bottom: .9rem;
+        }
+        .dest-tag {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            color: rgba(255,255,255,.8);
+            font-size: .68rem; padding: .18rem .55rem; border-radius: 2px;
+            backdrop-filter: blur(4px);
+        }
+
+        .dest-actions {
+            display: flex; gap: .6rem; align-items: center;
+            opacity: 0; transform: translateY(8px);
+            transition: opacity .3s, transform .3s;
+        }
+        .dest-card:hover .dest-actions { opacity: 1; transform: translateY(0); }
+
+        .explore-btn {
+            background: var(--rust); color: var(--white);
+            border: none; padding: .55rem 1.3rem;
+            border-radius: 2px; cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .8rem; letter-spacing: .06em; text-transform: uppercase;
+            transition: background .2s;
+        }
+        .explore-btn:hover { background: var(--gold); }
+
+        .wishlist-btn {
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.3);
+            color: var(--white); width: 36px; height: 36px;
+            border-radius: 2px; cursor: pointer;
+            font-size: .9rem; display: flex; align-items: center; justify-content: center;
+            transition: background .2s, color .2s;
+        }
+        .wishlist-btn:hover { background: var(--rust); border-color: var(--rust); }
+        .wishlist-btn.active { background: var(--rust); border-color: var(--rust); color: var(--white); }
+
+        .badge-card {
+            position: absolute; top: 1rem; left: 1rem;
+            font-size: .68rem; letter-spacing: .1em; text-transform: uppercase;
+            padding: .28rem .65rem; border-radius: 2px;
+            z-index: 1;
+        }
+        .badge-card.trending { background: var(--rust); color: var(--white); }
+        .badge-card.new      { background: #2a7c6f; color: var(--white); }
+        .badge-card.popular  { background: var(--gold); color: var(--white); }
+
+        .dest-rating {
+            position: absolute; top: 1rem; right: 1rem;
+            background: rgba(26,20,16,.7); backdrop-filter: blur(6px);
+            color: var(--white); font-size: .78rem;
+            padding: .3rem .65rem; border-radius: 2px;
+            display: flex; align-items: center; gap: .3rem;
+            z-index: 1;
+        }
+        .dest-rating i { color: var(--gold); font-size: .72rem; }
+
+        /* ── Continent Strip ── */
+        .continents {
+            background: var(--ink);
+            padding: 3.5rem 5%;
+            overflow-x: auto;
+        }
+        .continents-inner {
+            display: flex; gap: 1px; min-width: max-content;
+        }
+        .continent-item {
+            position: relative; overflow: hidden;
+            width: 180px; height: 120px; cursor: pointer;
+            flex-shrink: 0;
+            transition: width .4s ease;
+        }
+        .continent-item:hover { width: 240px; }
+        .continent-item img {
+            width: 100%; height: 100%; object-fit: cover;
+            transition: transform .5s;
+        }
+        .continent-item:hover img { transform: scale(1.1); }
+        .continent-item-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(to top, rgba(26,20,16,.8) 0%, transparent 60%);
+            display: flex; flex-direction: column; justify-content: flex-end;
+            padding: .8rem;
+        }
+        .continent-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.05rem; color: var(--white); font-weight: 400;
+        }
+        .continent-count {
+            font-size: .68rem; color: var(--gold); letter-spacing: .1em;
+        }
+
+        /* ── Experiences ── */
+        .exp-section {
+            padding: 5rem 5%;
+            background: var(--white);
+        }
+        .exp-header { text-align: center; margin-bottom: 3rem; }
+        .exp-header .eyebrow {
+            font-size: .75rem; letter-spacing: .2em; text-transform: uppercase;
+            color: var(--rust); margin-bottom: .6rem;
+        }
+        .exp-header h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2rem, 4vw, 3rem); font-weight: 400;
+        }
+        .exp-header h2 em { font-style: italic; color: var(--gold); }
+
+        .exp-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        .exp-item {
+            border: 1px solid var(--sand); padding: 1.8rem 1.4rem;
+            text-align: center; transition: border-color .2s, box-shadow .2s;
+            cursor: pointer;
+        }
+        .exp-item:hover {
+            border-color: var(--rust);
+            box-shadow: 0 8px 30px rgba(192,82,42,.1);
+        }
+        .exp-item i {
+            font-size: 1.6rem; color: var(--rust); margin-bottom: .8rem;
+            display: block;
+        }
+        .exp-item h4 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.15rem; font-weight: 600; margin-bottom: .3rem;
+        }
+        .exp-item p { font-size: .78rem; color: var(--muted); line-height: 1.6; }
+
+        /* ── Why / Info Band ── */
+        .info-band {
+            background: var(--ink); color: var(--white);
+            padding: 5rem 5%;
+            display: grid; grid-template-columns: 1fr 2fr; gap: 4rem;
+            align-items: center;
+        }
+        .info-band h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 300; line-height: 1.1;
+        }
+        .info-band h2 em { color: var(--gold); font-style: italic; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+        .info-item { display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .info-item i { font-size: 1.4rem; color: var(--gold); margin-bottom: .8rem; }
+        .info-item h4 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.15rem; font-weight: 600; margin-bottom: .4rem;
+        }
+        .info-item p { font-size: .83rem; color: rgba(255,255,255,.55); line-height: 1.65; }
+
+        /* ── CTA ── */
+        .cta-band {
+            background: var(--rust); padding: 3.5rem 5%;
+            display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 1.5rem;
+        }
+        .cta-band-text h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem; font-weight: 400; color: var(--white);
+        }
+        .cta-band-text p { color: rgba(255,255,255,.7); font-size: .9rem; margin-top: .3rem; }
+        .cta-band-btn {
+            background: var(--white); color: var(--rust);
+            border: none; padding: .85rem 2rem;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .88rem; letter-spacing: .08em; text-transform: uppercase;
+            cursor: pointer; border-radius: 2px; transition: background .2s, color .2s;
+        }
+        .cta-band-btn:hover { background: var(--ink); color: var(--white); }
+
+        /* ── Footer ── */
+        .footer {
+            background: #110d0a; color: rgba(255,255,255,.35);
+            text-align: center; padding: 1.5rem;
+            font-size: .8rem; letter-spacing: .05em;
+        }
+
+        /* ── Destination Detail Modal ── */
+        .modal {
+            display: none; position: fixed; inset: 0; z-index: 200;
+            background: rgba(26,20,16,.75); backdrop-filter: blur(6px);
+            align-items: center; justify-content: center;
+        }
+        .modal.open { display: flex; }
+        .modal-box {
+            background: var(--white); width: 92%; max-width: 700px;
+            border-radius: 2px; overflow: hidden;
+            animation: modalIn .3s ease; max-height: 90vh; overflow-y: auto;
+        }
+        @keyframes modalIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .modal-img {
+            width: 100%; height: 280px; object-fit: cover;
+        }
+        .modal-body { padding: 2rem; }
+        .modal-eyebrow {
+            font-size: .72rem; letter-spacing: .16em; text-transform: uppercase;
+            color: var(--rust); margin-bottom: .5rem;
+        }
+        .modal-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.2rem; font-weight: 400; margin-bottom: .8rem;
+        }
+        .modal-desc { font-size: .9rem; color: var(--muted); line-height: 1.75; margin-bottom: 1.5rem; }
+        .modal-info-row {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;
+            margin-bottom: 1.5rem; padding: 1.2rem; background: var(--cream);
+            border: 1px solid var(--sand);
+        }
+        .modal-info-item { text-align: center; }
+        .modal-info-label {
+            font-size: .68rem; letter-spacing: .1em; text-transform: uppercase;
+            color: var(--muted); margin-bottom: .25rem;
+        }
+        .modal-info-val {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem; font-weight: 600; color: var(--ink);
+        }
+        .modal-highlights { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1.5rem; }
+        .modal-tag {
+            background: var(--cream); border: 1px solid var(--sand);
+            font-size: .75rem; padding: .28rem .7rem; border-radius: 2px; color: var(--ink);
+        }
+        .modal-footer {
+            display: flex; gap: .8rem; padding-top: 1rem;
+            border-top: 1px solid var(--sand);
+        }
+        .modal-book-btn {
+            flex: 1; background: var(--rust); color: var(--white);
+            border: none; padding: .85rem; border-radius: 2px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .88rem; letter-spacing: .08em; text-transform: uppercase;
+            cursor: pointer; transition: background .2s;
+        }
+        .modal-book-btn:hover { background: var(--ink); }
+        .modal-close-btn {
+            background: none; border: 1px solid var(--sand); color: var(--muted);
+            padding: .85rem 1.4rem; border-radius: 2px;
+            font-family: 'DM Sans', sans-serif; font-size: .82rem;
+            cursor: pointer; transition: all .2s;
+        }
+        .modal-close-btn:hover { border-color: var(--ink); color: var(--ink); }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .dest-grid { grid-template-columns: 1fr 1fr; }
+            .dest-card:nth-child(n) { grid-column: span 1; grid-row: span 1; min-height: 220px; }
+            .info-band { grid-template-columns: 1fr; gap: 2rem; }
+            .info-grid { grid-template-columns: 1fr 1fr; }
+            .nav-links { display: none; }
+            .dest-hero-stats { display: none; }
+        }
+        @media (max-width: 540px) {
+            .dest-grid { grid-template-columns: 1fr; }
+            .dest-card:nth-child(n) { grid-column: span 1; }
+            .exp-grid { grid-template-columns: 1fr 1fr; }
+            .modal-info-row { grid-template-columns: 1fr; gap: .7rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+    <a href="index.html" class="logo"><i class="fas fa-compass"></i> Wanderlust</a>
+    <ul class="nav-links">
+        <li><a href="index.html#home">Home</a></li>
+        <li><a href="destinations.html" class="active">Destinations</a></li>
+        <li><a href="packages.html">Packages</a></li>
+        <li><a href="booking.html">Booking</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+    </ul>
+    <button class="btn-nav" onclick="window.location.href='packages.html'">View Packages</button>
+</nav>
+
+<!-- Hero -->
+<section class="dest-hero">
+    <div class="dest-hero-bg"></div>
+    <div class="dest-hero-overlay"></div>
+    <div class="dest-hero-content">
+        <div class="dest-hero-text">
+            <p class="eyebrow"><i class="fas fa-globe-asia"></i> &nbsp; Explore the World</p>
+            <h1>Where Will You<br><em>Wander</em> Next?</h1>
+            <p>Discover handpicked destinations across continents — curated for every soul.</p>
+        </div>
+        <div class="dest-hero-stats">
+            <div class="stat">
+                <div class="stat-num">50+</div>
+                <div class="stat-label">Destinations</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">18</div>
+                <div class="stat-label">Countries</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">6</div>
+                <div class="stat-label">Continents</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Search & Filter Bar -->
+<div class="search-filter-bar">
+    <div class="search-wrap">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Search a destination…" id="searchInput" oninput="searchDests(this.value)">
+    </div>
+    <span class="filter-label">Filter by</span>
+    <div class="filters">
+        <button class="filter-btn active" onclick="filterDests('all', this)">All</button>
+        <button class="filter-btn" onclick="filterDests('beach', this)">Beach</button>
+        <button class="filter-btn" onclick="filterDests('mountain', this)">Mountain</button>
+        <button class="filter-btn" onclick="filterDests('cultural', this)">Cultural</button>
+        <button class="filter-btn" onclick="filterDests('wildlife', this)">Wildlife</button>
+        <button class="filter-btn" onclick="filterDests('international', this)">International</button>
+    </div>
+    <select class="filter-sort" onchange="sortDests(this.value)">
+        <option value="featured">Sort: Featured</option>
+        <option value="rating">Top Rated</option>
+        <option value="az">A → Z</option>
+    </select>
+</div>
+
+<!-- Destinations Grid -->
+<section class="dest-section">
+    <div class="section-meta">
+        <h2>All Destinations</h2>
+        <span id="dest-count">10 destinations</span>
+    </div>
+
+    <div class="dest-grid" id="destGrid">
+
+        <!-- 1 — Large featured -->
+        <div class="dest-card" data-cat="beach international" data-name="Bali, Indonesia" data-rating="4.8" onclick="openModal(0)">
+            <span class="badge-card trending">🔥 Trending</span>
+            <div class="dest-rating"><i class="fas fa-star"></i> 4.8</div>
+            <img src="https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=900" alt="Bali">
+            <div class="dest-card-overlay">
+                <div class="dest-region">Southeast Asia · Indonesia</div>
+                <div class="dest-name">Bali</div>
+                <div class="dest-meta">
+                    <span><i class="fas fa-sun"></i> Apr – Oct</span>
+                    <span><i class="fas fa-tag"></i> From ₹55,000</span>
+                </div>
+                <div class="dest-tags">
+                    <span class="dest-tag">Temples</span>
+                    <span class="dest-tag">Beaches</span>
+                    <span class="dest-tag">Rice Terraces</span>
+                    <span class="dest-tag">Surfing</span>
+                </div>
+                <div class="dest-actions">
+                    <button class="explore-btn">Explore</button>
+                    <button class="wishlist-btn" onclick="toggleWishlist(event, this)"><i class="fas fa-heart"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2 -->
+        <div class="dest-card" data-cat="cultural international" data-name="Paris, France" data-rating="4.9" onclick="openModal(1)">
+            <span class="badge-card popular">⭐ Top Pick</span>
+            <div class="dest-rating"><i class="fas fa-star"></i> 4.9</div>
+            <img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=700" alt="Paris">
+            <div class="dest-card-overlay">
+                <div class="dest-region">Western Europe · France</div>
+                <div class="dest-name">Paris</div>
+                <div class="dest-meta">
+                    <span><i class="fas fa-sun"></i> Mar – Jun</span>
+                    <span><i class="fas fa-tag"></i> From ₹1,20,000</span>
+                </div>
+                <div class="dest-tags">
+                    <span class="dest-tag">Eiffel Tower</span>
+                    <span class="dest-tag">Art & Museums</span>
+                    <span class="dest-tag">Cuisine</span>
+                </div>
+                <div class="dest-actions">
+                    <button class="explore-btn">Explore</button>
+                    <button class="wishlist-btn" onclick="toggleWishlist(event, this)"><i class="fas fa-heart"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3 -->
+        <div class="dest-card" data-cat="cultural international" data-name="Tokyo, Japan" data-rating="4.8" onclick="openModal(2)">
+            <div class="dest-rating"><i class="fas fa-star"></i> 4.8</div>
+            <img src="https://images.unsplash.com/photo-1504214208698-ea1916a2195a?w=700" alt="Tokyo">
+            <div class="dest-card-overlay">
+                <div class="dest-region">East Asia · Japan</div>
+                <div class="dest-name">Tokyo</div>
+                <div class="dest-meta">
+                    <span><i class="fas fa-sun"></i> Mar – May</span>
+                    <span><i class="fas fa-tag"></i> From ₹1,40,000</span>
+                </div>
+                <div class="dest-tags">
+                    <span class="dest-tag">Temples</span>
+                    <span class="dest-tag">Street Food</span>
+                    <span class="dest-tag">Anime</span>
+                </div>
+                <div class="dest-actions">
+                    <button class="explore-btn">Explore</button>
+                    <button class="wishlist-btn" onclick="toggleWishlist(event, this)"><i class="fas fa-heart"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4 -->
+        <div class="dest-card" data-cat="beach" data-name="Goa, India" data-rating="4.6" onclick="openModal(3)">
+            <span class="badge-card popular">Popular</span>
+            <div class="dest-rating"><i class="fas fa-star"></i> 4.6</div>
+            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=700" alt="Goa">
+            <div class="dest-card-overlay">
+                <div class="dest-region">West India · Goa</div>
+                <div class="dest-name">Goa</div>
+                <div class="dest-meta">
+                    <span><i class="fas fa-sun"></i> Nov – Feb</span>
+                    <span><i class="fas fa-tag"></i> From ₹20,000</span>
+                </div>
+                <div class="dest-tags">
+                    <span class="dest-tag">Beaches</span>
+                    <span class="dest-tag">Nightlife</span>
+                    <span class="dest-tag">Seafood</span>
+                </div>
+                <div class="dest-actions">
+                    <button class="explore-btn">Explore</button>
+                    <button class="wishlist-btn" onclick="toggleWishlist(event, this)"><i class="fas fa-heart"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5 -->
+        <div class="dest-card" data-cat="mountain" data-name="Manali, India" data-rating="4.7" onclick="openModal(4)">
+            <div class="dest-rating"><i class="fas fa-star"></i> 4.7</div>
+            <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=700" alt="Manali">
+            <div class="dest-card-overlay">
+                <div class="dest-region">North India · Himachal Pradesh</div>
+                <div class="dest-name">Manali</div>
+                <div class="dest-meta">
+                    <span><i class="fas fa-sun"></i> May – Jun</span>
+                    <span><i class="fas fa-tag"></i> From ₹18,000</span>
+                </div>
+                <div class="dest-tags">
+                    <span class="dest-tag">Snow</span>
+                    <span class="dest-tag">Trekking</span>
+                    <span class="dest-tag">Skiing</span>
+                </div>
+                <div class="dest-actions">
+                    <button class="explore-btn">Explore</button>
+                    <button class="wishlist-btn" onclick="toggleWishlist(event, this)"><i class="fas fa-heart"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6 -->
+        <div class="dest-card" data-cat="cultural" data-name="Rajasthan, India" data-rating="4.7" onclick="openModal(5)">
+            <span class="badge-card new">New</span>
+            <div class="dest-rating"><i class="fas fa-star"></i> 4.7</div>
+            <img src="https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=700" alt="Rajasthan">
+            <div class="dest-card-overlay">
+                <div class="dest-region">North India · Rajasthan</div>
+                <div class="dest-name">Rajasthan</div>
+                <div class="dest-meta">
+                    <span><i class="fas fa-sun"></i> Oct – Mar</span>
+                    <span><i class="fas fa-tag"></i> From ₹30,000</span>
+                </div>
+                <div class="dest-tags">
+                    <span class="dest-tag">Palaces</span>
+                    <span class="dest-tag">Desert</span>
+                    <span class="dest-tag">Forts</span>
+                </div>
+                <div class="dest-actions">
+                    <button class="explore-btn">Explore</button>
+                    <button class="wishlist-btn" onclick="toggleWishlist(event, this)"><i class="fas fa-heart"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7 -->
+        <div class="dest-card" data-cat="wildlife beach" data-name="Kerala, India" data-rating="4.8" onclick="openModal(6)">
+            <div class="dest-rating"><i class="fas fa-star"></i> 4.8</div>
+            <img src="https://images.unsplash.com/photo-1593693397690-362cb9666fc2?w=700" alt="Kerala">
+            <div class="dest-card-overlay">
+                <div class="dest-region">South India · Kerala</div>
+                <div class="dest-name">Kerala</div>
+                <div class="dest-meta">
+                    <span><i class="fas fa-sun"></i> Sep – Mar</span>
+                    <span><i class="fas fa-tag"></i> From ₹25,000</span>
+                </div>
+                <div class="dest-tags">
+                    <span class="dest-tag">Backwaters</span>
+                    <span class="dest-tag">Ayurveda</span>
+                    <span class="dest-tag">Wildlife</span>
+                </div>
+                <div class="dest-actions">
+                    <button class="explore-btn">Explore</button>
+                    <button class="wishlist-btn" onclick="toggleWishlist(event, this)"><i class="fas fa-heart"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8 -->
+        <div class="dest-card" data-cat="mountain" data-name="Sikkim, India" data-rating="4.7" onclick="openModal(7)">
+            <div class="dest-rating"><i class="fas fa-star"></i> 4.7</div>
+            <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=700" alt="Sikkim">
+            <div class="dest-card-overlay">
+                <div class="dest-region">Northeast India · Sikkim</div>
+                <div class="dest-name">Sikkim</div>
+                <div class="dest-meta">
+                    <span><i class="fas fa-sun"></i> Mar – May</span>
+                    <span><i class="fas fa-tag"></i> From ₹22,000</span>
+                </div>
+                <div class="dest-tags">
+                    <span class="dest-tag">Monasteries</span>
+                    <span class="dest-tag">Snowfall</span>
+                    <span class="dest-tag">Cable Car</span>
+                </div>
+                <div class="dest-actions">
+                    <button class="explore-btn">Explore</button>
+                    <button class="wishlist-btn" onclick="toggleWishlist(event, this)"><i class="fas fa-heart"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 9 — Large featured -->
+        <div class="dest-card" data-cat="beach international" data-name="Maldives" data-rating="5.0" onclick="openModal(8)">
+            <span class="badge-card trending">⭐ Luxury</span>
+            <div class="dest-rating"><i class="fas fa-star"></i> 5.0</div>
+            <img src="https://images.unsplash.com/photo-1573843981267-be1999ff37cd?w=900" alt="Maldives">
+            <div class="dest-card-overlay">
+                <div class="dest-region">South Asia · Maldives</div>
+                <div class="dest-name">Maldives</div>
+                <div class="dest-meta">
+                    <span><i class="fas fa-sun"></i> Nov – Apr</span>
+                    <span><i class="fas fa-tag"></i> From ₹90,000</span>
+                </div>
+                <div class="dest-tags">
+                    <span class="dest-tag">Overwater Villas</span>
+                    <span class="dest-tag">Snorkelling</span>
+                    <span class="dest-tag">Coral Reefs</span>
+                    <span class="dest-tag">All-Inclusive</span>
+                </div>
+                <div class="dest-actions">
+                    <button class="explore-btn">Explore</button>
+                    <button class="wishlist-btn" onclick="toggleWishlist(event, this)"><i class="fas fa-heart"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 10 -->
+        <div class="dest-card" data-cat="cultural international" data-name="Dubai, UAE" data-rating="4.7" onclick="openModal(9)">
+            <div class="dest-rating"><i class="fas fa-star"></i> 4.7</div>
+            <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=700" alt="Dubai">
+            <div class="dest-card-overlay">
+                <div class="dest-region">Middle East · UAE</div>
+                <div class="dest-name">Dubai</div>
+                <div class="dest-meta">
+                    <span><i class="fas fa-sun"></i> Nov – Mar</span>
+                    <span><i class="fas fa-tag"></i> From ₹75,000</span>
+                </div>
+                <div class="dest-tags">
+                    <span class="dest-tag">Burj Khalifa</span>
+                    <span class="dest-tag">Desert Safari</span>
+                    <span class="dest-tag">Shopping</span>
+                </div>
+                <div class="dest-actions">
+                    <button class="explore-btn">Explore</button>
+                    <button class="wishlist-btn" onclick="toggleWishlist(event, this)"><i class="fas fa-heart"></i></button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- Continent Strip -->
+<div class="continents">
+    <div class="continents-inner">
+        <div class="continent-item">
+            <img src="https://images.unsplash.com/photo-1548013146-72479768bada?w=400" alt="Asia">
+            <div class="continent-item-overlay">
+                <div class="continent-name">Asia</div>
+                <div class="continent-count">28 Destinations</div>
+            </div>
+        </div>
+        <div class="continent-item">
+            <img src="https://images.unsplash.com/photo-1493707553966-283afac8c358?w=400" alt="Europe">
+            <div class="continent-item-overlay">
+                <div class="continent-name">Europe</div>
+                <div class="continent-count">12 Destinations</div>
+            </div>
+        </div>
+        <div class="continent-item">
+            <img src="https://images.unsplash.com/photo-1518459031867-a89b944bffe4?w=400" alt="Middle East">
+            <div class="continent-item-overlay">
+                <div class="continent-name">Middle East</div>
+                <div class="continent-count">6 Destinations</div>
+            </div>
+        </div>
+        <div class="continent-item">
+            <img src="https://images.unsplash.com/photo-1504214208698-ea1916a2195a?w=400" alt="Pacific">
+            <div class="continent-item-overlay">
+                <div class="continent-name">Pacific</div>
+                <div class="continent-count">4 Destinations</div>
+            </div>
+        </div>
+        <div class="continent-item">
+            <img src="https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=400" alt="Africa">
+            <div class="continent-item-overlay">
+                <div class="continent-name">Africa</div>
+                <div class="continent-count">5 Destinations</div>
+            </div>
+        </div>
+        <div class="continent-item">
+            <img src="https://images.unsplash.com/photo-1534430480872-3498386e7856?w=400" alt="Americas">
+            <div class="continent-item-overlay">
+                <div class="continent-name">Americas</div>
+                <div class="continent-count">8 Destinations</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Experiences -->
+<section class="exp-section">
+    <div class="exp-header">
+        <p class="eyebrow"><i class="fas fa-star"></i> &nbsp; What we offer</p>
+        <h2>Travel by <em>Experience</em></h2>
+    </div>
+    <div class="exp-grid">
+        <div class="exp-item">
+            <i class="fas fa-umbrella-beach"></i>
+            <h4>Beach & Islands</h4>
+            <p>Sun, sand, and turquoise waters — from Goa to the Maldives.</p>
+        </div>
+        <div class="exp-item">
+            <i class="fas fa-mountain"></i>
+            <h4>Mountain Escapes</h4>
+            <p>Snow-capped peaks, serene valleys and breathtaking treks.</p>
+        </div>
+        <div class="exp-item">
+            <i class="fas fa-landmark"></i>
+            <h4>Cultural Heritage</h4>
+            <p>Forts, palaces, temples and stories etched in stone.</p>
+        </div>
+        <div class="exp-item">
+            <i class="fas fa-paw"></i>
+            <h4>Wildlife & Nature</h4>
+            <p>Jungle safaris, birding, and raw untamed wilderness.</p>
+        </div>
+        <div class="exp-item">
+            <i class="fas fa-gem"></i>
+            <h4>Luxury Getaways</h4>
+            <p>Five-star resorts, overwater villas, and bespoke service.</p>
+        </div>
+        <div class="exp-item">
+            <i class="fas fa-route"></i>
+            <h4>Road Trips</h4>
+            <p>Coastal drives, hill station runs, and scenic byways.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Info Band -->
+<section class="info-band">
+    <div>
+        <h2>Every Journey<br>Tells a <em>Story</em></h2>
+    </div>
+    <div class="info-grid">
+        <div class="info-item">
+            <i class="fas fa-shield-alt"></i>
+            <h4>100% Safe & Trusted</h4>
+            <p>All destinations verified, insured, and satisfaction guaranteed.</p>
+        </div>
+        <div class="info-item">
+            <i class="fas fa-headset"></i>
+            <h4>24/7 Travel Support</h4>
+            <p>Our team is with you every step — before, during, and after.</p>
+        </div>
+        <div class="info-item">
+            <i class="fas fa-tags"></i>
+            <h4>Best Price Guarantee</h4>
+            <p>Find it cheaper? We match it and give you 5% off on top.</p>
+        </div>
+        <div class="info-item">
+            <i class="fas fa-map"></i>
+            <h4>Expert Itineraries</h4>
+            <p>Built by seasoned travellers who know every hidden gem.</p>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Band -->
+<div class="cta-band">
+    <div class="cta-band-text">
+        <h3>Ready to pack your bags?</h3>
+        <p>Browse our curated packages and start your next adventure today.</p>
+    </div>
+    <button class="cta-band-btn" onclick="window.location.href='packages.html'">Explore Packages →</button>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+    <p>© 2026 Wanderlust Travels &nbsp;·&nbsp; support@wanderlust.com &nbsp;·&nbsp; +91 98765 43210</p>
+</footer>
+
+<!-- Destination Detail Modal -->
+<div class="modal" id="destModal" onclick="handleModalClick(event)">
+    <div class="modal-box" id="modalBox">
+        <img id="modalImg" class="modal-img" src="" alt="">
+        <div class="modal-body">
+            <p class="modal-eyebrow" id="modalEyebrow"></p>
+            <h2 class="modal-title" id="modalTitle"></h2>
+            <p class="modal-desc" id="modalDesc"></p>
+            <div class="modal-info-row">
+                <div class="modal-info-item">
+                    <div class="modal-info-label">Best Time</div>
+                    <div class="modal-info-val" id="modalBestTime"></div>
+                </div>
+                <div class="modal-info-item">
+                    <div class="modal-info-label">Starting From</div>
+                    <div class="modal-info-val" id="modalPrice"></div>
+                </div>
+                <div class="modal-info-item">
+                    <div class="modal-info-label">Rating</div>
+                    <div class="modal-info-val" id="modalRating"></div>
+                </div>
+            </div>
+            <div class="modal-highlights" id="modalHighlights"></div>
+            <div class="modal-footer">
+                <button class="modal-book-btn" onclick="window.location.href='packages.html'">View Packages →</button>
+                <button class="modal-close-btn" onclick="closeModal()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const destinations = [
+    {
+        name: "Bali, Indonesia",
+        region: "Southeast Asia · Indonesia",
+        img: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=900",
+        desc: "Bali is a living postcard, an lush Indonesian paradise that offers a legendary combination of stunning temples, emerald rice paddies, pristine beaches, world-class surf breaks, and a culture that pulsates with warmth and artistry.",
+        bestTime: "Apr – Oct",
+        price: "₹55,000",
+        rating: "4.8 ★",
+        tags: ["Temples", "Beaches", "Rice Terraces", "Surfing", "Spa", "Nightlife"]
+    },
+    {
+        name: "Paris, France",
+        region: "Western Europe · France",
+        img: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=900",
+        desc: "Paris — the City of Light — is a timeless destination that never ceases to enchant. From the iconic silhouette of the Eiffel Tower at dusk to the labyrinthine galleries of the Louvre, every corner tells a story of romance, revolution, and art.",
+        bestTime: "Mar – Jun",
+        price: "₹1,20,000",
+        rating: "4.9 ★",
+        tags: ["Eiffel Tower", "Louvre", "Art & Culture", "Cuisine", "Fashion", "Cafés"]
+    },
+    {
+        name: "Tokyo, Japan",
+        region: "East Asia · Japan",
+        img: "https://images.unsplash.com/photo-1504214208698-ea1916a2195a?w=900",
+        desc: "Tokyo is a city of extraordinary contrasts — ancient shrines tucked between neon-lit skyscrapers, serene zen gardens beside buzzing electronics markets. A sensory feast where tradition and hyper-modernity live in perfect harmony.",
+        bestTime: "Mar – May",
+        price: "₹1,40,000",
+        rating: "4.8 ★",
+        tags: ["Temples", "Street Food", "Anime", "Cherry Blossoms", "Technology", "Sumo"]
+    },
+    {
+        name: "Goa, India",
+        region: "West India · Goa",
+        img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=900",
+        desc: "India's smallest state packs a mighty punch — golden beaches, Portuguese colonial churches, vibrant flea markets, spicy fish curries, and a nightlife that never seems to sleep. Goa is a mood, a lifestyle, a place you keep returning to.",
+        bestTime: "Nov – Feb",
+        price: "₹20,000",
+        rating: "4.6 ★",
+        tags: ["Beaches", "Nightlife", "Seafood", "Water Sports", "Heritage", "Flea Markets"]
+    },
+    {
+        name: "Manali, India",
+        region: "North India · Himachal Pradesh",
+        img: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=900",
+        desc: "Nestled in the Beas River Valley, Manali is a gateway to the Himalayas — where snow-capped peaks, apple orchards in full bloom, and the roar of glacial rivers make every breath feel like an adventure.",
+        bestTime: "May – Jun",
+        price: "₹18,000",
+        rating: "4.7 ★",
+        tags: ["Snow", "Trekking", "Skiing", "River Rafting", "Camping", "Rohtang Pass"]
+    },
+    {
+        name: "Rajasthan, India",
+        region: "North India · Rajasthan",
+        img: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=900",
+        desc: "Rajasthan is India's most colourful chapter — a land of maharajas, towering desert forts, opulent palaces, and golden sand dunes where camel caravans still trace ancient spice routes beneath a blazing sky.",
+        bestTime: "Oct – Mar",
+        price: "₹30,000",
+        rating: "4.7 ★",
+        tags: ["Palaces", "Desert Safari", "Forts", "Camel Ride", "Folk Culture", "Jaipur"]
+    },
+    {
+        name: "Kerala, India",
+        region: "South India · Kerala",
+        img: "https://images.unsplash.com/photo-1593693397690-362cb9666fc2?w=900",
+        desc: "God's Own Country earns its title through shimmering backwater canals, misty tea-carpeted hills, elephant-dotted wildlife sanctuaries and a tradition of Ayurvedic healing that has soothed souls for over 5,000 years.",
+        bestTime: "Sep – Mar",
+        price: "₹25,000",
+        rating: "4.8 ★",
+        tags: ["Backwaters", "Ayurveda", "Wildlife", "Houseboat", "Tea Gardens", "Beaches"]
+    },
+    {
+        name: "Sikkim, India",
+        region: "Northeast India · Sikkim",
+        img: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=900",
+        desc: "Perched in the Eastern Himalayas, Sikkim is a jewel of a state where prayer flags flutter against Kanchenjunga's eternal snow, ancient Buddhist monasteries cling to misty ridges, and rhododendrons bloom in impossible colours.",
+        bestTime: "Mar – May",
+        price: "₹22,000",
+        rating: "4.7 ★",
+        tags: ["Monasteries", "Snowfall", "Cable Car", "Trekking", "Kanchenjunga", "Tsomgo Lake"]
+    },
+    {
+        name: "Maldives",
+        region: "South Asia · Maldives",
+        img: "https://images.unsplash.com/photo-1573843981267-be1999ff37cd?w=900",
+        desc: "The Maldives is the world's ultimate luxury escape — a scattering of coral atolls across the Indian Ocean where overwater bungalows hover above crystalline lagoons, and sunsets paint the horizon in gold and fire every single evening.",
+        bestTime: "Nov – Apr",
+        price: "₹90,000",
+        rating: "5.0 ★",
+        tags: ["Overwater Villas", "Snorkelling", "Coral Reefs", "All-Inclusive", "Scuba Diving", "Sunset Cruises"]
+    },
+    {
+        name: "Dubai, UAE",
+        region: "Middle East · UAE",
+        img: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=900",
+        desc: "Dubai is ambition made skyline — a dazzling desert metropolis where the world's tallest tower rises beside a man-made archipelago, souks selling saffron and gold sit steps from supercars, and a desert safari awaits just beyond the city limits.",
+        bestTime: "Nov – Mar",
+        price: "₹75,000",
+        rating: "4.7 ★",
+        tags: ["Burj Khalifa", "Desert Safari", "Shopping", "Luxury", "Architecture", "Gold Souk"]
+    }
+];
+
+function openModal(idx) {
+    const d = destinations[idx];
+    document.getElementById('modalImg').src = d.img;
+    document.getElementById('modalEyebrow').textContent = d.region;
+    document.getElementById('modalTitle').textContent = d.name;
+    document.getElementById('modalDesc').textContent = d.desc;
+    document.getElementById('modalBestTime').textContent = d.bestTime;
+    document.getElementById('modalPrice').textContent = d.price;
+    document.getElementById('modalRating').textContent = d.rating;
+    const tagsHTML = d.tags.map(t => `<span class="modal-tag">${t}</span>`).join('');
+    document.getElementById('modalHighlights').innerHTML = tagsHTML;
+    document.getElementById('destModal').classList.add('open');
+}
+function closeModal() { document.getElementById('destModal').classList.remove('open'); }
+function handleModalClick(e) { if (e.target === document.getElementById('destModal')) closeModal(); }
+
+function toggleWishlist(e, btn) {
+    e.stopPropagation();
+    btn.classList.toggle('active');
+}
+
+function filterDests(cat, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const cards = document.querySelectorAll('.dest-card');
+    let count = 0;
+    cards.forEach(c => {
+        const cats = c.dataset.cat || '';
+        const show = cat === 'all' || cats.includes(cat);
+        c.style.display = show ? '' : 'none';
+        if (show) count++;
+    });
+    document.getElementById('dest-count').textContent = count + ' destination' + (count !== 1 ? 's' : '');
+}
+
+function searchDests(val) {
+    const q = val.toLowerCase();
+    const cards = document.querySelectorAll('.dest-card');
+    let count = 0;
+    cards.forEach(c => {
+        const name = (c.dataset.name || '').toLowerCase();
+        const show = !q || name.includes(q);
+        c.style.display = show ? '' : 'none';
+        if (show) count++;
+    });
+    document.getElementById('dest-count').textContent = count + ' destination' + (count !== 1 ? 's' : '');
+}
+
+function sortDests(val) {
+    const grid = document.getElementById('destGrid');
+    const cards = Array.from(grid.querySelectorAll('.dest-card'));
+    if (val === 'rating') {
+        cards.sort((a, b) => parseFloat(b.dataset.rating) - parseFloat(a.dataset.rating));
+    } else if (val === 'az') {
+        cards.sort((a, b) => a.dataset.name.localeCompare(b.dataset.name));
+    } else {
+        return; // featured = original order kept
+    }
+    cards.forEach(c => grid.appendChild(c));
+}
+</script>
+</body>
+</html>

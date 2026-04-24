@@ -67,3 +67,6 @@ def logout_view(request):
     auth_logout(request)
     messages.info(request, 'You have been logged out.')
     return redirect('login')
+
+def destination(request):
+    return render(request, 'core/destination.html')
