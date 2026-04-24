@@ -1,0 +1,475 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #f4f6f9;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+/* ── Wrapper ── */
+.pay-wrap {
+  max-width: 520px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* ── Header ── */
+.pay-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.pay-header .amount {
+  font-size: 32px;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.pay-header .merchant {
+  font-size: 14px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+/* ── Tabs ── */
+.tabs {
+  display: flex;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+}
+
+.tab {
+  flex: 1;
+  padding: 10px 4px;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+  background: #ffffff;
+  color: #6b7280;
+  border: none;
+  border-right: 1px solid #e5e7eb;
+  transition: background 0.15s, color 0.15s;
+}
+
+.tab:last-child {
+  border-right: none;
+}
+
+.tab.active {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.tab:hover:not(.active) {
+  background: #f9fafb;
+}
+
+/* ── Sections ── */
+.section {
+  display: none;
+}
+
+.section.active {
+  display: block;
+}
+
+/* ── Card Panel ── */
+.card-panel {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 12px;
+}
+
+.card-panel .label {
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+/* ── Form Fields ── */
+.field {
+  margin-bottom: 12px;
+}
+
+.field label {
+  display: block;
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 5px;
+}
+
+.field input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  background: #ffffff;
+  color: #111827;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.field input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* ── UPI Section ── */
+.upi-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.upi-row input {
+  flex: 1;
+}
+
+.verify-btn {
+  padding: 9px 16px;
+  font-size: 13px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #f3f4f6;
+  color: #111827;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: inherit;
+  font-weight: 500;
+  transition: background 0.15s;
+}
+
+.verify-btn:hover {
+  background: #e5e7eb;
+}
+
+.upi-apps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.upi-app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  cursor: pointer;
+  background: #ffffff;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.upi-app:hover {
+  border-color: #9ca3af;
+  background: #f9fafb;
+}
+
+.upi-app.selected {
+  border: 2px solid #1D9E75;
+  background: #E1F5EE;
+}
+
+.upi-app .icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.upi-app .name {
+  font-size: 11px;
+  color: #6b7280;
+  text-align: center;
+}
+
+.divider {
+  text-align: center;
+  font-size: 12px;
+  color: #9ca3af;
+  margin: 10px 0;
+  position: relative;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 40%;
+  height: 1px;
+  background: #e5e7eb;
+}
+
+.divider::before {
+  left: 0;
+}
+
+.divider::after {
+  right: 0;
+}
+
+/* ── Net Banking ── */
+.bank-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.bank-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  cursor: pointer;
+  background: #ffffff;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.bank-item:hover {
+  border-color: #9ca3af;
+  background: #f9fafb;
+}
+
+.bank-item.selected {
+  border: 2px solid #378ADD;
+  background: #E6F1FB;
+}
+
+.bank-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.bank-name {
+  font-size: 13px;
+  color: #111827;
+  font-weight: 500;
+}
+
+.bank-sub {
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.more-banks {
+  font-size: 13px;
+  color: #185FA5;
+  cursor: pointer;
+  text-align: center;
+  padding: 8px;
+  transition: opacity 0.15s;
+}
+
+.more-banks:hover {
+  opacity: 0.75;
+}
+
+/* ── WhatsApp Section ── */
+.whatsapp-center {
+  text-align: center;
+  padding: 1rem 0 0.5rem;
+}
+
+.wa-icon-wrap {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #E7F8EE;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+}
+
+.wa-icon-wrap svg {
+  width: 40px;
+  height: 40px;
+}
+
+.wa-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 6px;
+}
+
+.wa-sub {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.wa-steps {
+  margin: 1rem 0;
+}
+
+.wa-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.wa-step:last-child {
+  border-bottom: none;
+}
+
+.wa-step-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #E7F8EE;
+  color: #0F6E56;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.wa-step-text {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* ── Pay Buttons ── */
+.pay-btn {
+  width: 100%;
+  padding: 13px;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  margin-top: 4px;
+  transition: opacity 0.15s, transform 0.1s;
+}
+
+.pay-btn:active {
+  transform: scale(0.99);
+}
+
+.pay-btn.green {
+  background: #1D9E75;
+  color: #ffffff;
+}
+
+.pay-btn.green:hover {
+  background: #178a64;
+}
+
+.pay-btn.blue {
+  background: #185FA5;
+  color: #ffffff;
+}
+
+.pay-btn.blue:hover {
+  background: #134f8a;
+}
+
+.pay-btn.dark {
+  background: #1a1a2e;
+  color: #ffffff;
+}
+
+.pay-btn.dark:hover {
+  background: #111827;
+}
+
+.pay-btn.whatsapp {
+  background: #25D366;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.pay-btn.whatsapp:hover {
+  background: #1ebe5a;
+}
+
+/* ── Security Note ── */
+.security-note {
+  text-align: center;
+  font-size: 11px;
+  color: #9ca3af;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+/* ── Card Brand Icons ── */
+.card-icons {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.card-icon {
+  padding: 4px 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  background: #f9fafb;
+}
+
+/* ── UPI Status ── */
+#upiStatus {
+  font-size: 12px;
+  margin-top: -4px;
+  margin-bottom: 8px;
+  min-height: 16px;
+}

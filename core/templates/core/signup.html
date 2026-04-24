@@ -1,0 +1,176 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up - Wanderlust Travels</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:'Poppins',sans-serif;
+    }
+
+    body{
+      height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background:linear-gradient(135deg,#ff9a9e,#fad0c4);
+    }
+
+    .signup-container{
+      background:#fff;
+      padding:40px;
+      border-radius:15px;
+      width:380px;
+      box-shadow:0 10px 25px rgba(0,0,0,0.2);
+      text-align:center;
+    }
+
+    .signup-container h2{
+      margin-bottom:20px;
+      color:#333;
+    }
+
+    .input-group{
+      margin-bottom:15px;
+      text-align:left;
+    }
+
+    .input-group label{
+      font-size:14px;
+      color:#555;
+    }
+
+    .input-group input{
+      width:100%;
+      padding:10px;
+      margin-top:5px;
+      border:1px solid #ccc;
+      border-radius:8px;
+      outline:none;
+    }
+
+    .input-group input:focus{
+      border-color:#ff758c;
+    }
+
+    .signup-btn{
+      width:100%;
+      padding:10px;
+      border:none;
+      background:#ff758c;
+      color:white;
+      font-size:16px;
+      border-radius:8px;
+      cursor:pointer;
+      transition:0.3s;
+    }
+
+    .signup-btn:hover{
+      background:#ff5e78;
+    }
+
+    .message-box {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .message-box p {
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .message-box .error {
+      background:#ffe5e5;
+      color:#b00020;
+      border:1px solid #f5c2c7;
+    }
+
+    .message-box .success {
+      background:#e6ffed;
+      color:#1f7a2b;
+      border:1px solid #c7f0d8;
+    }
+
+    .extra-links{
+      margin-top:15px;
+      font-size:14px;
+    }
+
+    .extra-links a{
+      color:#ff758c;
+      text-decoration:none;
+    }
+
+    .extra-links a:hover{
+      text-decoration:underline;
+    }
+  </style>
+</head>
+<body>
+
+<div class="signup-container">
+  <h2>Create Account</h2>
+  <form method="post" action="{% url 'signup' %}" onsubmit="return handleSignup(event)">
+    {% csrf_token %}
+    {% if messages %}
+    <div class="message-box">
+      {% for message in messages %}
+        <p class="{{ message.tags }}">{{ message }}</p>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="input-group">
+      <label>Full Name</label>
+      <input type="text" name="full_name" placeholder="Enter your name" required value="{{ full_name|default:'' }}">
+    </div>
+
+    <div class="input-group">
+      <label>Email</label>
+      <input type="email" name="email" placeholder="Enter your email" required value="{{ email|default:'' }}">
+    </div>
+
+    <div class="input-group">
+      <label>Password</label>
+      <input type="password" name="password" placeholder="Create password" required>
+    </div>
+
+    <div class="input-group">
+      <label>Confirm Password</label>
+      <input type="password" name="confirm_password" placeholder="Confirm password" required>
+    </div>
+
+    <button type="submit" class="signup-btn">Sign Up</button>
+
+    <div class="extra-links">
+      <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
+    </div>
+
+  </form>
+</div>
+
+<script>
+function handleSignup(e){
+  const password = document.querySelector('input[name="password"]').value;
+  const confirmPassword = document.querySelector('input[name="confirm_password"]').value;
+
+  if(password !== confirmPassword){
+    e.preventDefault();
+    alert("Passwords do not match!");
+    return false;
+  }
+
+  return true;
+}
+</script>
+
+</body>
+</html>

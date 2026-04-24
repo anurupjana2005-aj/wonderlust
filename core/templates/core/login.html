@@ -1,0 +1,152 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Wanderlust Travels</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:'Poppins',sans-serif;
+        }
+
+        body{
+            height:100vh;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            background:linear-gradient(135deg,#4facfe,#00f2fe);
+        }
+
+        .login-container{
+            background:#fff;
+            padding:40px;
+            border-radius:15px;
+            width:350px;
+            box-shadow:0 10px 25px rgba(0,0,0,0.2);
+            text-align:center;
+        }
+
+        .login-container h2{
+            margin-bottom:20px;
+            color:#333;
+        }
+
+        .input-group{
+            margin-bottom:15px;
+            text-align:left;
+        }
+
+        .input-group label{
+            font-size:14px;
+            color:#555;
+        }
+
+        .input-group input{
+            width:100%;
+            padding:10px;
+            margin-top:5px;
+            border:1px solid #ccc;
+            border-radius:8px;
+            outline:none;
+        }
+
+        .input-group input:focus{
+            border-color:#4facfe;
+        }
+
+        .login-btn{
+            width:100%;
+            padding:10px;
+            border:none;
+            background:#4facfe;
+            color:white;
+            font-size:16px;
+            border-radius:8px;
+            cursor:pointer;
+            transition:0.3s;
+        }
+
+        .login-btn:hover{
+            background:#00c6ff;
+        }
+
+        .message-box {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .message-box p {
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .message-box .error {
+            background:#ffe5e5;
+            color:#b00020;
+            border:1px solid #f5c2c7;
+        }
+
+        .message-box .success {
+            background:#e6ffed;
+            color:#1f7a2b;
+            border:1px solid #c7f0d8;
+        }
+
+        .extra-links{
+            margin-top:15px;
+            font-size:14px;
+        }
+
+        .extra-links a{
+            color:#4facfe;
+            text-decoration:none;
+        }
+
+        .extra-links a:hover{
+            text-decoration:underline;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <h2>Welcome Back</h2>
+    <form method="post" action="{% url 'login' %}">
+        {% csrf_token %}
+        {% if messages %}
+        <div class="message-box">
+            {% for message in messages %}
+                <p class="{{ message.tags }}">{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="input-group">
+            <label>Email</label>
+            <input type="email" name="email" placeholder="Enter your email" required value="{{ email|default:'' }}">
+        </div>
+
+        <div class="input-group">
+            <label>Password</label>
+            <input type="password" name="password" placeholder="Enter your password" required>
+        </div>
+
+        <button type="submit" class="login-btn">Login</button>
+
+        <div class="extra-links">
+            <p><a href="#">Forgot Password?</a></p>
+            <p>Don't have an account? <a href="{% url 'signup' %}">Sign Up</a></p>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>
