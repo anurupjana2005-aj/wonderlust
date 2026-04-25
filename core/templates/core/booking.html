@@ -4,95 +4,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Booking Page</title>
+    <title>Booking Page – Wanderlust Travels</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --ink:   #1a1410;
+            --cream: #f7f3ec;
+            --sand:  #e8dcc8;
+            --rust:  #c0522a;
+            --gold:  #b8924a;
+            --muted: #7a6e62;
+            --white: #ffffff;
+        }
+
+        html { scroll-behavior: smooth; }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-image: url("https://wallpaperaccess.com/full/124518.jpg");
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--cream);
+            color: var(--ink);
             min-height: 100vh;
-            position: relative;
+            overflow-x: hidden;
         }
 
-        /* Dark overlay */
-        body::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 0;
+        /* ── Navbar ── */
+        .navbar {
+            position: fixed; top: 0; width: 100%; z-index: 100;
+            background: rgba(247,243,236,0.92);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--sand);
+            padding: 0 5%;
+            display: flex; align-items: center; justify-content: space-between;
+            height: 68px;
         }
-
-        .booking-container {
-            /* Gradient Form Background */
-            background: linear-gradient(135deg, #16e8d6 0%, #0523b7 100%);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-            max-width: 600px;
-            width: 100%;
-            position: relative;
-            z-index: 1;
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.6rem; font-weight: 600;
+            color: var(--ink); text-decoration: none;
+            display: flex; align-items: center; gap: .4rem;
         }
-
-        /* Inner white container for better readability */
-        .form-inner {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 25px;
-            border-radius: 10px;
+        .logo i { color: var(--rust); }
+        .nav-links { display: flex; align-items: center; gap: 2rem; list-style: none; }
+        .nav-links a {
+            text-decoration: none; color: var(--muted);
+            font-size: .85rem; letter-spacing: .05em; text-transform: uppercase;
+            transition: color .2s;
         }
+        .nav-links a:hover, .nav-links a.active { color: var(--rust); }
 
-        h2 {
+        /* ── Hero Banner ── */
+        .booking-hero {
+            margin-top: 68px;
+            height: 38vh; min-height: 260px;
+            background: linear-gradient(135deg, #1a1410 0%, #3d2b1f 60%, #c0522a 100%);
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
             text-align: center;
-            color: #2c3e50;
-            margin-bottom: 25px;
+            position: relative; overflow: hidden;
+        }
+        .booking-hero::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: url('https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1400') center/cover no-repeat;
+            opacity: .18;
+        }
+        .booking-hero-inner { position: relative; z-index: 1; padding: 0 1rem; }
+        .booking-hero-label {
+            font-size: .75rem; letter-spacing: .22em; text-transform: uppercase;
+            color: var(--gold); margin-bottom: .8rem;
+        }
+        .booking-hero h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2.4rem, 5vw, 4rem);
+            font-weight: 300; color: var(--white);
+            line-height: 1.1; margin-bottom: .8rem;
+        }
+        .booking-hero h1 em { font-style: italic; color: var(--gold); }
+        .booking-hero p { color: rgba(255,255,255,.6); font-size: .92rem; }
+
+        /* ── Page Layout ── */
+        .booking-section {
+            padding: 4rem 5% 6rem;
+            display: flex; justify-content: center;
         }
 
-        .form-group {
-            margin-bottom: 15px;
+        /* ── Form Card ── */
+        .booking-card {
+            background: var(--white);
+            width: 100%; max-width: 680px;
+            border: 1px solid var(--sand);
+            animation: fadeUp .5s ease forwards;
+            opacity: 0; transform: translateY(24px);
         }
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .booking-card-header {
+            background: var(--ink); color: var(--white);
+            padding: 1.8rem 2.2rem;
+            border-bottom: 2px solid var(--rust);
+        }
+        .booking-card-header h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.9rem; font-weight: 400;
+        }
+        .booking-card-header p {
+            color: rgba(255,255,255,.5);
+            font-size: .82rem; margin-top: .3rem; letter-spacing: .04em;
+        }
+
+        .booking-card-body { padding: 2rem 2.2rem 2.4rem; }
+
+        /* ── Form Elements ── */
+        .form-group { margin-bottom: 1.25rem; }
 
         label {
             display: block;
-            font-weight: 600;
-            margin-bottom: 5px;
-            color: #333;
+            font-size: .72rem; letter-spacing: .12em; text-transform: uppercase;
+            color: var(--muted); margin-bottom: .4rem;
+            font-weight: 500;
         }
 
         input[type="text"],
         input[type="number"],
         input[type="tel"],
+        input[type="datetime-local"],
         select,
         textarea {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 14px;
-            transition: all 0.3s ease;
+            border: 1px solid var(--sand);
+            background: var(--cream);
+            padding: .65rem .9rem;
+            border-radius: 2px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .9rem;
+            color: var(--ink);
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
         }
 
-        /* Input Focus Glow Effect */
         input[type="text"]:focus,
         input[type="number"]:focus,
         input[type="tel"]:focus,
+        input[type="datetime-local"]:focus,
         select:focus,
         textarea:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 10px rgba(102, 126, 234, 0.5),
-                        0 0 20px rgba(102, 126, 234, 0.3);
+            border-color: var(--rust);
+            box-shadow: 0 0 0 3px rgba(192,82,42,.1);
+            background: var(--white);
         }
 
         textarea {
@@ -100,229 +163,276 @@
             height: 80px;
         }
 
+        /* Radio Group */
         .radio-group {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            margin-top: 5px;
+            display: flex; gap: 1.2rem; align-items: center; flex-wrap: wrap;
+            margin-top: .3rem;
         }
-
         .radio-group label {
-            font-weight: normal;
-            display: flex;
-            align-items: center;
-            cursor: pointer;
+            font-weight: 400; font-size: .85rem;
+            text-transform: none; letter-spacing: 0;
+            color: var(--ink);
+            display: flex; align-items: center; cursor: pointer;
         }
-
         .radio-group input[type="radio"] {
-            margin-right: 8px;
-            accent-color: #667eea;
+            margin-right: 6px;
+            accent-color: var(--rust);
         }
 
+        /* Fieldset */
         fieldset {
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            padding: 15px;
-            margin-bottom: 20px;
+            border: 1px solid var(--sand);
+            border-radius: 2px;
+            padding: 1.4rem 1.4rem 1rem;
+            margin-bottom: 1.4rem;
         }
-
         legend {
-            font-weight: bold;
-            color: #34495e;
-            padding: 0 5px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1rem; font-weight: 600;
+            color: var(--ink);
+            padding: 0 .5rem;
+            letter-spacing: .04em;
         }
 
-        .row {
-            display: flex;
-            gap: 15px;
-        }
+        /* Row */
+        .row { display: flex; gap: 1.2rem; }
+        .col { flex: 1; }
 
-        .col {
-            flex: 1;
-        }
-
+        /* Checkbox */
         .checkbox-group {
-            margin-bottom: 10px;
-            font-size: 0.9em;
-            color: #555;
-        }
-
-        .error-msg {
-            color: red;
-            font-size: 0.85em;
-            display: none;
-            margin-top: 5px;
-        }
-
-        button.submit-btn {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(45deg, #ff6b6b, #feca57, #48dbfb);
-            background-size: 200% 200%;
-            animation: gradientBG 3s ease infinite;
-            color: rgb(15, 14, 14);
-            border: none;
-            border-radius: 8px;
-            font-size: 18px;
+            display: flex; align-items: center; gap: .5rem;
+            margin-bottom: 1rem;
+            font-size: .84rem; color: var(--muted);
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        }
+        .checkbox-group input[type="checkbox"] {
+            accent-color: var(--rust);
+            width: 15px; height: 15px;
         }
 
-        button.submit-btn:hover {
-            transform: scale(1.02);
-            box-shadow: 0 8px 25px rgba(72, 219, 251, 0.5);
+        /* Phone row */
+        .phone-row { display: flex; gap: .7rem; }
+        .phone-row select { width: 90px; flex-shrink: 0; }
+        .phone-row input { flex: 1; }
+
+        /* Error */
+        .error-msg {
+            color: var(--rust); font-size: .75rem;
+            display: none; margin-top: .35rem;
+            letter-spacing: .02em;
         }
 
+        /* Submit */
+        .submit-btn {
+            width: 100%;
+            background: var(--ink);
+            color: var(--white);
+            border: none; padding: .9rem;
+            border-radius: 2px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .88rem; letter-spacing: .1em; text-transform: uppercase;
+            cursor: pointer;
+            margin-top: .8rem;
+            transition: background .2s;
+        }
+        .submit-btn:hover { background: var(--rust); }
+
+        /* Back link */
         .home-link {
-            text-align: center;
-            margin-top: 15px;
+            text-align: center; padding: 1.4rem;
+            border-top: 1px solid var(--sand);
         }
-
         .home-link a {
-            text-decoration: none;
-            color: white;
-            font-weight: 600;
+            text-decoration: none; color: var(--muted);
+            font-size: .82rem; letter-spacing: .08em; text-transform: uppercase;
+            transition: color .2s;
+        }
+        .home-link a:hover { color: var(--rust); }
+
+        /* ── Footer ── */
+        .footer {
+            background: #110d0a; color: rgba(255,255,255,.35);
+            text-align: center; padding: 1.5rem;
+            font-size: .8rem; letter-spacing: .05em;
         }
 
-        .home-link a:hover {
-            text-decoration: underline;
-        }
-
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
+        /* Responsive */
         @media (max-width: 600px) {
-            .row {
-                flex-direction: column;
-            }
+            .row { flex-direction: column; }
+            .booking-card-body { padding: 1.5rem; }
+            .nav-links { display: none; }
         }
     </style>
 </head>
 <body>
 
-<div class="booking-container">
-    <!-- Inner form container -->
-    <div class="form-inner">
-        <h2>Booking Form</h2>
-        <form id="bookingForm">
-            
-            <div class="form-group">
-                <label for="fullname">Full Name</label>
-                <input type="text" id="fullname" name="fullname" placeholder="Enter your full name" required>
-            </div>
+<!-- Navbar -->
+<nav class="navbar">
+    <a href="{% url 'index' %}" class="logo"><i class="fas fa-compass"></i> Wanderlust</a>
+    <ul class="nav-links">
+        <li><a href="{% url 'index' %}#home">Home</a></li>
+        <li><a href="{% url 'destination' %}">Destinations</a></li>
+        <li><a href="{% url 'packages' %}">Packages</a></li>
+        <li><a href="{% url 'booking' %}" class="active">Booking</a></li>
+        <li><a href="{% url 'index' %}#contact">Contact</a></li>
+    </ul>
+</nav>
 
-            <div class="row">
-                <div class="col form-group">
-                    <label for="age">Age</label>
-                    <input type="number" id="age" name="age" min="18" max="120" placeholder="Enter Your Age" required>
+<!-- Hero -->
+<section class="booking-hero">
+    <div class="booking-hero-inner">
+        <p class="booking-hero-label"><i class="fas fa-ticket-alt"></i> &nbsp; Reserve Your Journey</p>
+        <h1>Your <em>Adventure</em><br>Awaits</h1>
+        <p>Fill in your details and our team will get in touch within 24 hours.</p>
+    </div>
+</section>
+
+<!-- Booking Section -->
+<section class="booking-section">
+    <div class="booking-card">
+        <div class="booking-card-header">
+            <h2>Booking Form</h2>
+            <p>All fields marked are required &nbsp;·&nbsp; Secure &amp; Confidential</p>
+        </div>
+
+        <div class="booking-card-body">
+            <form id="bookingForm">
+
+                {% if selected_package %}
+                <div class="form-group" style="background: #f0ede5; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem; border-left: 4px solid #c0522a;">
+                    <label style="color: #7a6e62; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em;">Selected Package</label>
+                    <p style="font-size: 1.1rem; color: #1a1410; font-weight: 500; margin-top: 0.4rem;">{{ selected_package }}</p>
                 </div>
-                
-                <div class="col form-group">
-                    <label>Gender</label>
-                    <div class="radio-group">
-                        <label><input type="radio" name="gender" value="male" required> Male</label>
-                        <label><input type="radio" name="gender" value="female"> Female</label>
-                        <label><input type="radio" name="gender" value="transgender"> Transgender</label>
+                {% endif %}
+
+                <div class="form-group">
+                    <label for="fullname">Full Name</label>
+                    <input type="text" id="fullname" name="fullname" placeholder="Enter your full name" required>
+                </div>
+
+                <div class="row">
+                    <div class="col form-group">
+                        <label for="age">Age</label>
+                        <input type="number" id="age" name="age" min="18" max="120" placeholder="Enter Your Age" required>
+                    </div>
+                    <div class="col form-group">
+                        <label>Gender</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="gender" value="male" required> Male</label>
+                            <label><input type="radio" name="gender" value="female"> Female</label>
+                            <label><input type="radio" name="gender" value="transgender"> Transgender</label>
+                        </div>
+                        <div id="genderError" class="error-msg">Please select a gender.</div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Phone Section with Validation -->
-            <div class="form-group">
-                <label for="phone">Phone Number (With Country Code)</label>
-                <div style="display: flex; gap: 10px;">
-                    <select name="country_code" style="width: 80px;" required>
-                        <option value="+1">+1</option>
-                        <option value="+44">+44</option>
-                        <option value="+91" selected>+91</option>
-                        <option value="+61">+61</option>
-                        <option value="+81">+81</option>
-                    </select>
-                    <!-- Added maxlength="10" and ID for validation -->
-                    <input type="tel" id="phone" name="phone" maxlength="10" placeholder="Enter Your Number" required>
-                </div>
-                <div id="phoneError" class="error-msg">Phone must start with 6-9 and be 10 digits.</div>
-            </div>
-
-            <!-- Date Section -->
-            <div class="row">
-                <div class="col form-group">
-                    <label for="start_date">Start Date</label>
-                    <input type="datetime-local" id="start_date" required>
-                </div>
-                <div class="col form-group">
-                    <label for="end_date">End Date</label>
-                    <input type="datetime-local" id="end_date" required>
-                    <div id="dateError" class="error-msg">End date must be after start date.</div>
-                </div>
-            </div>
-
-            <fieldset>
-                <legend>Address Details</legend>
-
-                <div class="checkbox-group">
-                    <input type="checkbox" id="same_address" onchange="copyAddress()">
-                    Current address is same as Permanent
-                </div>
 
                 <div class="form-group">
-                    <label for="permanent_address">Permanent Address</label>
-                    <textarea id="permanent_address" name="permanent_address" placeholder="Enter Address" required></textarea>
+                    <label for="phone">Phone Number (With Country Code)</label>
+                    <div class="phone-row">
+                        <select name="country_code" required>
+                            <option value="+1">+1</option>
+                            <option value="+44">+44</option>
+                            <option value="+91" selected>+91</option>
+                            <option value="+61">+61</option>
+                            <option value="+81">+81</option>
+                        </select>
+                        <input type="tel" id="phone" name="phone" maxlength="10" placeholder="Enter Your Number" required>
+                    </div>
+                    <div id="phoneError" class="error-msg">Phone must start with 6-9 and be 10 digits.</div>
                 </div>
 
-                <div class="form-group">
-                    <label for="current_address">Current Address</label>
-                    <textarea id="current_address" name="current_address" required></textarea>
+                <div class="row">
+                    <div class="col form-group">
+                        <label for="start_date">Start Date</label>
+                        <input type="date" id="start_date" required>
+                        <div id="startDateError" class="error-msg">Please select a future date (tomorrow or later).</div>
+                    </div>
+                    <div class="col form-group">
+                        <label for="end_date">End Date</label>
+                        <input type="date" id="end_date" required>
+                        <div id="dateError" class="error-msg">End date must be after start date.</div>
+                    </div>
                 </div>
-            </fieldset>
 
-            <fieldset>
-                <legend>Identity Proof (Select One)</legend>
-                <div class="radio-group">
-                    <label><input type="radio" name="id_card" value="adhar" checked> Aadhar Card</label>
-                    <label><input type="radio" name="id_card" value="pan"> PAN Card</label>
-                    <label><input type="radio" name="id_card" value="voter"> Voter ID</label>
+                <fieldset>
+                    <legend>Address Details</legend>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="same_address" onchange="copyAddress()">
+                        <span>Current address is same as Permanent</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="permanent_address">Permanent Address</label>
+                        <textarea id="permanent_address" name="permanent_address" placeholder="Enter Address" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="current_address">Current Address</label>
+                        <textarea id="current_address" name="current_address" required></textarea>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Identity Proof (Select One)</legend>
+                    <div class="radio-group" style="margin-bottom:1rem">
+                        <label><input type="radio" name="id_card" value="adhar" checked> Aadhar Card</label>
+                        <label><input type="radio" name="id_card" value="pan"> PAN Card</label>
+                        <label><input type="radio" name="id_card" value="voter"> Voter ID</label>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_number">ID Number</label>
+                        <input type="text" id="id_number" name="id_number" placeholder="Enter ID Number here" required>
+                    </div>
+                </fieldset>
+
+                <div class="row">
+                    <div class="col form-group">
+                        <label for="adults">Number of Adults</label>
+                        <input type="number" id="adults" name="adults" min="1" value="1" required>
+                    </div>
+                    <div class="col form-group">
+                        <label for="children">Number of Children</label>
+                        <input type="number" id="children" name="children" min="0" value="0">
+                    </div>
                 </div>
 
-                <div class="form-group" style="margin-top: 10px;">
-                    <label for="id_number">ID Number</label>
-                    <input type="text" id="id_number" name="id_number" placeholder="Enter ID Number here" required>
-                </div>
-            </fieldset>
+                <button type="submit" class="submit-btn">Confirm Booking →</button>
+            </form>
+        </div>
 
-            <div class="row">
-                <div class="col form-group">
-                    <label for="adults">Number of Adults</label>
-                    <input type="number" id="adults" name="adults" min="1" value="1" required>
-                </div>
-                <div class="col form-group">
-                    <label for="children">Number of Children</label>
-                    <input type="number" id="children" name="children" min="0" value="0">
-                </div>
-            </div>
-
-            <button type="submit" class="submit-btn">Book Now</button>
-        </form>
+        <div class="home-link">
+            <a href="{% url 'index' %}">← Back to Home</a>
+        </div>
     </div>
+</section>
 
-    <div class="home-link">
-        <a href="{% url 'index' %}">⬅ Back to Home</a>
-    </div>
-</div>
+<!-- Footer -->
+<footer class="footer">
+    <p>© 2026 Wanderlust Travels &nbsp;·&nbsp; support@wanderlust.com &nbsp;·&nbsp; +91 98765 43210</p>
+</footer>
 
 <script>
-    // --- 1. Address Copy Logic (From Version 2) ---
+    // Set minimum date to tomorrow for date inputs
+    function setMinDate() {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const minDate = tomorrow.toISOString().slice(0, 10); // Format: YYYY-MM-DD
+
+        const startDateInput = document.getElementById('start_date');
+        const endDateInput = document.getElementById('end_date');
+
+        startDateInput.min = minDate;
+        endDateInput.min = minDate;
+    }
+
+    // Set minimum dates when page loads
+    document.addEventListener('DOMContentLoaded', setMinDate);
+
     function copyAddress() {
         const checkbox = document.getElementById('same_address');
         const permAddress = document.getElementById('permanent_address');
         const currAddress = document.getElementById('current_address');
-        
         if (checkbox.checked) {
             currAddress.value = permAddress.value;
             currAddress.disabled = true;
@@ -332,38 +442,96 @@
         }
     }
 
-    // --- 2. Phone Validation Logic (From Version 1) ---
     const phoneInput = document.getElementById("phone");
     const phoneError = document.getElementById("phoneError");
     const phoneRegex = /^[6-9]\d{9}$/;
 
-    // Prevent typing non-numbers and enforce 10 digits
-    phoneInput.addEventListener("input", function(e){
-        // Remove any non-numeric characters
+    phoneInput.addEventListener("input", function() {
         this.value = this.value.replace(/[^0-9]/g, '');
         
-        // Check length and show error if it's not 10 digits
-        if(this.value.length > 0 && this.value.length < 10) {
+        // Check if first digit is not 6-9 (only if at least 1 digit is entered)
+        if (this.value.length > 0 && this.value[0] < '6') {
+            phoneError.style.display = "block";
+            phoneError.textContent = "Phone number must start with 6, 7, 8, or 9.";
+            return;
+        }
+        
+        // Check if partially entered
+        if (this.value.length > 0 && this.value.length < 10) {
             phoneError.style.display = "block";
             phoneError.textContent = "Please enter a valid 10-digit number.";
         } else if (this.value.length === 10) {
             phoneError.style.display = "none";
+        } else if (this.value.length === 0) {
+            phoneError.style.display = "none";
         }
     });
 
-    // --- 3. Date Validation Logic (From Version 1) ---
     const startDate = document.getElementById("start_date");
     const endDate = document.getElementById("end_date");
     const dateError = document.getElementById("dateError");
+    const startDateError = document.getElementById("startDateError");
 
-    // --- 4. Form Submission Logic (Combined) ---
+    // Update end date minimum when start date changes
+    startDate.addEventListener('change', function() {
+        if (this.value) {
+            // Get today's date
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const selectedDate = new Date(this.value);
+            
+            // Check if selected date is today or before
+            if (selectedDate <= today) {
+                startDateError.style.display = "block";
+                startDateError.textContent = "Please select a future date (tomorrow or later).";
+            } else {
+                startDateError.style.display = "none";
+            }
+            
+            endDate.min = this.value;
+            // If end date is now before start date, clear it
+            if (endDate.value && new Date(endDate.value) <= new Date(this.value)) {
+                endDate.value = '';
+                dateError.style.display = "none";
+            }
+        }
+    });
+
+    // Validate end date when it changes
+    endDate.addEventListener('change', function() {
+        if (this.value && startDate.value) {
+            // Only show error if end date is not after start date
+            if (new Date(this.value) <= new Date(startDate.value)) {
+                dateError.style.display = "block";
+                dateError.textContent = "End date must be after start date.";
+            } else {
+                dateError.style.display = "none";
+            }
+        } else {
+            // Hide error if end date is empty
+            dateError.style.display = "none";
+        }
+    });;
+
+    // Get gender error element
+    const genderError = document.getElementById("genderError");
+    const genderInputs = document.querySelectorAll('input[name="gender"]');
+
     const form = document.getElementById("bookingForm");
-
-    form.addEventListener("submit", function(e){
+    form.addEventListener("submit", function(e) {
         let valid = true;
 
-        // Check Phone
-        if(!phoneRegex.test(phoneInput.value)){
+        // Validate gender selection
+        const genderSelected = Array.from(genderInputs).some(radio => radio.checked);
+        if (!genderSelected) {
+            genderError.style.display = "block";
+            valid = false;
+        } else {
+            genderError.style.display = "none";
+        }
+
+        // Validate phone number
+        if (!phoneRegex.test(phoneInput.value)) {
             phoneError.style.display = "block";
             phoneError.textContent = "Phone must start with 6-9 and be 10 digits.";
             valid = false;
@@ -371,21 +539,33 @@
             phoneError.style.display = "none";
         }
 
-        // Check Dates
-        if(new Date(endDate.value) <= new Date(startDate.value)){
+        // Validate dates
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const selectedStartDate = new Date(startDate.value);
+        
+        if (selectedStartDate <= today) {
+            startDateError.style.display = "block";
+            startDateError.textContent = "Please select a future date (tomorrow or later).";
+            valid = false;
+        } else {
+            startDateError.style.display = "none";
+        }
+
+        if (endDate.value && new Date(endDate.value) <= new Date(startDate.value)) {
             dateError.style.display = "block";
+            dateError.textContent = "End date must be after start date.";
             valid = false;
         } else {
             dateError.style.display = "none";
         }
 
-            if(!valid){
-        e.preventDefault();
-    } else {
-        alert("🎉 Booking Successful!");
-    }
-
-});
+        if (!valid) {
+            e.preventDefault();
+        } else {
+            alert("🎉 Booking Successful!");
+        }
+    });
 </script>
 </body>
 </html>

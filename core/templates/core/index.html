@@ -5,10 +5,220 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wanderlust Travels - Explore the World</title>
-    <link rel="stylesheet" href="{% static 's.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+        :root {
+            --ink:   #1a1410;
+            --cream: #f7f3ec;
+            --sand:  #e8dcc8;
+            --rust:  #c0522a;
+            --gold:  #b8924a;
+            --muted: #7a6e62;
+            --white: #ffffff;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--cream);
+            color: var(--ink);
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        /* ── Navbar ── */
+        .navbar {
+            position: fixed; top: 0; width: 100%; z-index: 1000;
+            background: rgba(247,243,236,0.92);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--sand);
+            padding: 0 5%;
+        }
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 68px;
+        }
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.6rem; font-weight: 600;
+            color: var(--ink); text-decoration: none;
+            display: inline-flex; align-items: center; gap: .4rem;
+        }
+        .logo i { color: var(--rust); }
+
+        /* Remove the moving animation, keep it static to match packages */
+        .moving-logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+        .nav-links li a {
+            text-decoration: none; color: var(--muted);
+            font-size: .85rem; letter-spacing: .05em; text-transform: uppercase;
+            transition: color .2s;
+        }
+        .nav-links li a:hover { color: var(--rust); }
+
+        .btn {
+            padding: .45rem 1.2rem;
+            border-radius: 2px; cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .82rem; letter-spacing: .06em; text-transform: uppercase;
+            transition: background .2s, color .2s, border-color .2s;
+            border: none;
+        }
+        .btn-outline {
+            border: 1px solid var(--rust);
+            color: var(--rust);
+            background: transparent;
+        }
+        .btn-outline:hover {
+            background: var(--rust);
+            color: var(--white);
+        }
+
+        .hamburger {
+            display: none;
+            font-size: 1.3rem;
+            cursor: pointer;
+            color: var(--ink);
+        }
+
+        /* ── Hero ── */
+        .hero {
+            height: 100vh;
+            background: linear-gradient(135deg, rgba(26,20,16,.72) 0%, rgba(61,43,31,.6) 60%, rgba(192,82,42,.45) 100%),
+                        url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1600") center/cover no-repeat;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .hero-content { padding: 0 1rem; }
+        .hero-content h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2.8rem, 7vw, 5.5rem);
+            font-weight: 300; color: var(--white);
+            line-height: 1.1; margin-bottom: 1rem;
+        }
+        .hero-content p {
+            color: rgba(255,255,255,.65);
+            font-size: 1rem; max-width: 480px; margin: auto;
+        }
+
+        /* ── Section Title ── */
+        .section-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.2rem; font-weight: 400;
+            text-align: center;
+            margin: 4rem 0 2rem;
+        }
+
+        /* ── Destinations ── */
+        #destinations { padding: 0 0 4rem; }
+
+        .destination-grid, .package-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2px;
+        }
+
+        .destination-card, .package-card {
+            background: var(--white);
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            transition: transform .35s ease, box-shadow .35s ease;
+            opacity: 0;
+            transform: translateY(24px);
+            animation: fadeUp .55s forwards;
+        }
+        .destination-card:nth-child(1), .package-card:nth-child(1) { animation-delay: .05s; }
+        .destination-card:nth-child(2), .package-card:nth-child(2) { animation-delay: .15s; }
+        .destination-card:nth-child(3), .package-card:nth-child(3) { animation-delay: .25s; }
+
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .destination-card:hover, .package-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 24px 60px rgba(26,20,16,.18);
+            z-index: 2;
+        }
+
+        .destination-card img, .package-card img {
+            width: 100%; height: 210px; object-fit: cover;
+            transition: transform .5s ease;
+            display: block;
+        }
+        .destination-card:hover img, .package-card:hover img { transform: scale(1.07); }
+
+        .destination-info, .package-info {
+            padding: 1.2rem 1.4rem 1.4rem;
+        }
+        .destination-info h3, .package-info h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4rem; font-weight: 400;
+            margin-bottom: .3rem;
+        }
+        .destination-info p {
+            font-size: .85rem; color: var(--muted);
+        }
+
+        /* ── Packages ── */
+        .packages { background: var(--white); padding: 0 0 4rem; }
+
+        /* ── Contact ── */
+        #contact { padding: 4rem 0 5rem; }
+        #contact .section-title { margin-top: 0; }
+        #contact p {
+            text-align: center; color: var(--muted);
+            font-size: .92rem; margin-bottom: .5rem;
+            letter-spacing: .03em;
+        }
+
+        /* ── Footer ── */
+        .footer {
+            background: #110d0a; color: rgba(255,255,255,.35);
+            text-align: center; padding: 1.5rem;
+            font-size: .8rem; letter-spacing: .05em;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                position: absolute; right: 0; top: 68px;
+                background: var(--cream);
+                border-left: 1px solid var(--sand);
+                border-bottom: 1px solid var(--sand);
+                flex-direction: column;
+                width: 220px; padding: 1.5rem;
+                gap: 1.2rem;
+                display: none;
+            }
+            .nav-links.active { display: flex; }
+            .hamburger { display: block; }
+        }
+    </style>
 </head>
 <body>
 
@@ -70,8 +280,8 @@
                 <img src="https://images.unsplash.com/photo-1504214208698-ea1916a2195a?w=600">
                 <div class="destination-info">
                     <h3>Tokyo, Japan</h3>
-                    <p>⭐⭐⭐⭐☆</p>               
-                 </div>
+                    <p>⭐⭐⭐⭐☆</p>
+                </div>
             </div>
         </div>
     </div>
@@ -93,7 +303,6 @@
                 <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=600">
                 <div class="package-info">
                     <h3>Mountain Adventure</h3>
-                   
                 </div>
             </div>
         </div>
@@ -119,8 +328,6 @@
     hamburger.addEventListener("click", () => {
         navLinks.classList.toggle("active");
     });
-
-   
 </script>
 
 </body>

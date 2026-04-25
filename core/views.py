@@ -56,7 +56,23 @@ def signup(request):
 
 @login_required(login_url='login')
 def booking(request):
-    return render(request, 'core/booking.html')
+    # Get package from URL parameter
+    package_name = request.GET.get('package')
+    
+    if package_name:
+        # Store package in session
+        request.session['selected_package'] = package_name
+        context = {'selected_package': package_name}
+    else:
+        # Check if package exists in session
+        selected_package = request.session.get('selected_package')
+        if not selected_package:
+            # Redirect to packages page if no package selected
+            messages.error(request, 'Please select a package first.')
+            return redirect('packages')
+        context = {'selected_package': selected_package}
+    
+    return render(request, 'core/booking.html', context)
 
 @login_required(login_url='login')
 def payment(request):

@@ -53,15 +53,6 @@
             transition: color .2s;
         }
         .nav-links a:hover, .nav-links a.active { color: var(--rust); }
-        .btn-nav {
-            background: var(--rust); color: var(--white);
-            border: none; padding: .45rem 1.2rem;
-            border-radius: 2px; cursor: pointer;
-            font-family: 'DM Sans', sans-serif;
-            font-size: .82rem; letter-spacing: .06em; text-transform: uppercase;
-            transition: background .2s;
-        }
-        .btn-nav:hover { background: var(--gold); }
 
         /* ── Hero Banner ── */
         .pkg-hero {
@@ -276,7 +267,6 @@
         }
         .why-item {
             display: flex; flex-direction: column; align-items: center; text-align: center; }
-    
         .why-item i {
             font-size: 1.4rem; color: var(--gold); margin-bottom: .8rem;
         }
@@ -383,12 +373,12 @@
 <nav class="navbar">
     <a href="{% url 'index' %}" class="logo"><i class="fas fa-compass"></i> Wanderlust</a>
     <ul class="nav-links">
-        <li><a href="{% url 'index' %}">Home</a></li>
+        <li><a href="{% url 'index' %}#home">Home</a></li>
         <li><a href="{% url 'destination' %}">Destinations</a></li>
         <li><a href="{% url 'packages' %}" class="active">Packages</a></li>
         <li><a href="{% url 'booking' %}">Booking</a></li>
+        <li><a href="{% url 'index' %}#contact">Contact</a></li>
     </ul>
-    <button class="btn-nav" onclick="openBookingModal()">Book a Trip</button>
 </nav>
 
 <!-- Hero -->
@@ -457,7 +447,7 @@
                     <div>
                         <div class="stars">★★★★★</div>
                         <div class="rating-count">4.9 · 238 reviews</div>
-                        <button class="book-btn" style="margin-top:.7rem" onclick="openBookingModal('Maldives Overwater Escape')">Book Now</button>
+                        <a href="{% url 'booking' %}?package=Maldives Overwater Escape"><button class="book-btn" style="margin-top:.7rem">Book Now</button></a>
                     </div>
                 </div>
             </div>
@@ -488,13 +478,7 @@
                         <div class="price">₹25,000</div>
                         <div class="price-sub">per person</div>
                     </div>
-                    <button class="book-btn" onclick="openBookingModal('Goa Beach Escape')">Book Now</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- CARD 2 -->
-        <div class="pkg-card" data-cat="mountain">
+                    <a href="{% url 'booking' %}?package=Goa Beach Escape"><button class="book-btn">Book Now</button></a>
             <div class="card-img-wrap">
                 <span class="badge popular">Popular</span>
                 <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=700" alt="Mountain Adventure">
@@ -518,13 +502,7 @@
                         <div class="price">₹40,000</div>
                         <div class="price-sub">per person</div>
                     </div>
-                    <button class="book-btn" onclick="openBookingModal('Himalayan Adventure')">Book Now</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- CARD 3 -->
-        <div class="pkg-card" data-cat="cultural">
+                    <a href="{% url 'booking' %}?package=Himalayan Adventure"><button class="book-btn">Book Now</button></a>
             <div class="card-img-wrap">
                 <span class="badge new">New</span>
                 <img src="https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=700" alt="Rajasthan Heritage">
@@ -548,13 +526,7 @@
                         <div class="price">₹55,000</div>
                         <div class="price-sub">per person</div>
                     </div>
-                    <button class="book-btn" onclick="openBookingModal('Rajasthan Heritage Tour')">Book Now</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- CARD 4 -->
-        <div class="pkg-card" data-cat="wildlife">
+                    <a href="{% url 'booking' %}?package=Rajasthan Heritage Tour"><button class="book-btn">Book Now</button></a>
             <div class="card-img-wrap">
                 <span class="badge">Wildlife</span>
                 <img src="https://images.unsplash.com/photo-1504214208698-ea1916a2195a?w=700" alt="Kerala Wildlife">
@@ -578,13 +550,7 @@
                         <div class="price">₹38,000</div>
                         <div class="price-sub">per person</div>
                     </div>
-                    <button class="book-btn" onclick="openBookingModal('Kerala Backwater & Wildlife')">Book Now</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- CARD 5 -->
-        <div class="pkg-card" data-cat="mountain cultural">
+                    <a href="{% url 'booking' %}?package=Kerala Backwater & Wildlife"><button class="book-btn">Book Now</button></a>
             <div class="card-img-wrap">
                 <span class="badge popular">Popular</span>
                 <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=700" alt="Sikkim">
@@ -608,15 +574,7 @@
                         <div class="price">₹32,000</div>
                         <div class="price-sub">per person</div>
                     </div>
-                    <button class="book-btn" onclick="openBookingModal('Sikkim Serenity')">Book Now</button>
-                </div>
-            </div>
-        </div>
-
-    </div>
-</section>
-
-<!-- Why Choose -->
+                    <a href="{% url 'booking' %}?package=Sikkim Serenity"><button class="book-btn">Book Now</button></a>
 <section class="why-section">
     <div>
         <h2>Why Travel<br>with <em>Wanderlust</em>?</h2>
@@ -651,66 +609,13 @@
         <h3>Can't find the perfect package?</h3>
         <p>Let us build a custom itinerary just for you — free of charge.</p>
     </div>
-    <button class="cta-band-btn" onclick="openBookingModal()">Request Custom Trip</button>
+    <a href="{% url 'booking' %}"><button class="cta-band-btn">Request Custom Trip</button></a>
 </div>
 
 <!-- Footer -->
 <footer class="footer">
     <p>© 2026 Wanderlust Travels &nbsp;·&nbsp; support@wanderlust.com &nbsp;·&nbsp; +91 98765 43210</p>
 </footer>
-
-<!-- Booking Modal -->
-<div class="modal" id="bookingModal" onclick="handleModalClick(event)">
-    <div class="modal-box">
-        <div class="modal-header">
-            <h3 id="modalTitle">Book Your Trip</h3>
-            <button class="close-x" onclick="closeBookingModal()">×</button>
-        </div>
-        <div class="modal-body">
-            <label>Select Package</label>
-            <select id="modalPkg">
-                <option value="" disabled selected>— Choose a package —</option>
-                <option value="Maldives Overwater Escape">Maldives Overwater Escape — ₹1,85,000</option>
-                <option value="Goa Beach Escape">Goa Beach Escape — ₹25,000</option>
-                <option value="Himalayan Adventure">Himalayan Adventure — ₹40,000</option>
-                <option value="Rajasthan Heritage Tour">Rajasthan Heritage Tour — ₹55,000</option>
-                <option value="Kerala Backwater & Wildlife">Kerala Backwater &amp; Wildlife — ₹38,000</option>
-                <option value="Sikkim Serenity">Sikkim Serenity — ₹32,000</option>
-            </select>
-            <label>Full Name</label>
-            <input type="text" placeholder="Your full name">
-            <div class="modal-row">
-                <div>
-                    <label>Email Address</label>
-                    <input type="email" placeholder="your@email.com">
-                </div>
-                <div>
-                    <label>Mobile Number</label>
-                    <input type="tel" placeholder="+91 98765 43210">
-                </div>
-            </div>
-            <div class="modal-row">
-                <div>
-                    <label>Travel Date</label>
-                    <input type="date">
-                </div>
-                <div>
-                    <label>No. of Travellers</label>
-                    <select>
-                        <option>1 Person</option>
-                        <option selected>2 People</option>
-                        <option>3 People</option>
-                        <option>4 People</option>
-                        <option>5+ People</option>
-                    </select>
-                </div>
-            </div>
-            <label>Special Requests</label>
-            <input type="text" placeholder="Dietary needs, accessibility, etc.">
-            <button class="modal-submit" onclick="submitBooking()">Confirm Booking →</button>
-        </div>
-    </div>
-</div>
 
 <script>
     /* Filter */
@@ -727,27 +632,6 @@
         });
         document.getElementById('pkg-count').textContent = count + ' package' + (count !== 1 ? 's' : '') + ' found';
     }
-
-    /* Modal */
-    function openBookingModal(pkg) {
-        const sel = document.getElementById('modalPkg');
-        if (pkg) {
-            for (let opt of sel.options) { if (opt.value === pkg) { sel.value = pkg; break; } }
-        } else { sel.selectedIndex = 0; }
-        document.getElementById('modalTitle').textContent = pkg ? 'Book: ' + pkg : 'Book Your Trip';
-        document.getElementById('bookingModal').classList.add('open');
-    }
-    function closeBookingModal() {
-        document.getElementById('bookingModal').classList.remove('open');
-    }
-    function handleModalClick(e) {
-        if (e.target === document.getElementById('bookingModal')) closeBookingModal();
-    }
-    function submitBooking() {
-        alert('Booking request submitted! Our team will contact you within 24 hours.');
-        closeBookingModal();
-    }
 </script>
-
 </body>
 </html>
