@@ -4,6 +4,16 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.shortcuts import redirect, render
 
+# Package pricing mapping
+PACKAGES = {
+    'Maldives Overwater Escape': {'price': 185000, 'currency': '₹'},
+    'Goa Beach Escape': {'price': 25000, 'currency': '₹'},
+    'Himalayan Adventure': {'price': 40000, 'currency': '₹'},
+    'Rajasthan Heritage Tour': {'price': 55000, 'currency': '₹'},
+    'Kerala Backwater & Wildlife': {'price': 38000, 'currency': '₹'},
+    'Sikkim Serenity': {'price': 32000, 'currency': '₹'},
+}
+
 def index(request):
     return render(request, 'core/index.html')
 
@@ -60,23 +70,51 @@ def booking(request):
     package_name = request.GET.get('package')
     
     if package_name:
-        # Store package in session
-        request.session['selected_package'] = package_name
-        context = {'selected_package': package_name}
+        # Validate package exists
+        if package_name in PACKAGES:
+            package_info = PACKAGES[package_name]
+            request.session['selected_package'] = package_name
+            request.session['selected_package_price'] = package_info['price']
+            context = {
+                'selected_package': package_name,
+                'package_price': package_info['price'],
+                'currency': package_info['currency']
+            }
+        else:
+            messages.error(request, 'Invalid package selected.')
+            return redirect('packages')
     else:
         # Check if package exists in session
         selected_package = request.session.get('selected_package')
+        selected_price = request.session.get('selected_package_price')
         if not selected_package:
-            # Redirect to packages page if no package selected
             messages.error(request, 'Please select a package first.')
             return redirect('packages')
-        context = {'selected_package': selected_package}
+        context = {
+            'selected_package': selected_package,
+            'package_price': selected_price,
+            'currency': '₹'
+        }
     
     return render(request, 'core/booking.html', context)
 
 @login_required(login_url='login')
 def payment(request):
-    return render(request, 'core/payment_page.html')
+    # Get package price from session
+    selected_package = request.session.get('selected_package')
+    package_price = request.session.get('selected_package_price')
+    
+    if not selected_package or not package_price:
+        messages.error(request, 'Please complete your booking first.')
+        return redirect('booking')
+    
+    context = {
+        'selected_package': selected_package,
+        'package_price': package_price,
+        'currency': '₹'
+    }
+    
+    return render(request, 'core/payment_page.html', context)
 
 
 def logout_view(request):

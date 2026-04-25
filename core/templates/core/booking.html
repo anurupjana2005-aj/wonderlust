@@ -397,7 +397,7 @@
                     </div>
                 </div>
 
-                <button type="submit" class="submit-btn">Confirm Booking →</button>
+                <button type="button" class="submit-btn" onclick="validateAndProceed()">Proceed to Payment →</button>
             </form>
         </div>
 
@@ -513,7 +513,6 @@
         }
     });;
 
-    // Get gender error element
     const genderError = document.getElementById("genderError");
     const genderInputs = document.querySelectorAll('input[name="gender"]');
 
@@ -566,6 +565,64 @@
             alert("🎉 Booking Successful!");
         }
     });
+
+    // Validate and proceed to payment
+    function validateAndProceed() {
+        let valid = true;
+
+        // Check all required fields are filled
+        const fullname = document.getElementById('fullname').value.trim();
+        const age = document.getElementById('age').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const startDateVal = document.getElementById('start_date').value;
+        const endDateVal = document.getElementById('end_date').value;
+        const permanentAddress = document.getElementById('permanent_address').value.trim();
+        const currentAddress = document.getElementById('current_address').value.trim();
+        const idNumber = document.getElementById('id_number').value.trim();
+        const adults = document.getElementById('adults').value.trim();
+
+        // Validate basic fields
+        if (!fullname || !age || !phone || !startDateVal || !endDateVal || !permanentAddress || !currentAddress || !idNumber || !adults) {
+            alert('❌ Please fill in all required fields.');
+            return false;
+        }
+
+        // Validate gender selection
+        const genderSelected = Array.from(genderInputs).some(radio => radio.checked);
+        if (!genderSelected) {
+            genderError.style.display = "block";
+            alert('❌ Please select a gender.');
+            return false;
+        }
+
+        // Validate phone number
+        if (!phoneRegex.test(phone)) {
+            phoneError.style.display = "block";
+            alert('❌ Please enter a valid 10-digit phone number starting with 6-9.');
+            return false;
+        }
+
+        // Validate dates
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const selectedStartDate = new Date(startDateVal);
+        const selectedEndDate = new Date(endDateVal);
+        
+        if (selectedStartDate <= today) {
+            alert('❌ Please select a future start date (tomorrow or later).');
+            return false;
+        }
+
+        if (selectedEndDate <= selectedStartDate) {
+            alert('❌ End date must be after start date.');
+            return false;
+        }
+
+        // If all validations pass, redirect to payment page
+        window.location.href = '{% url "payment" %}';
+        return true;
+    }
+
 </script>
 </body>
 </html>
