@@ -1,0 +1,464 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dashboard — Wanderlust Travels</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --ink:       #1a1410;
+            --cream:     #f7f3ec;
+            --sand:      #e8dcc8;
+            --rust:      #c0522a;
+            --gold:      #b8924a;
+            --gold-lite: #f0e4c8;
+            --muted:     #7a6e62;
+            --white:     #ffffff;
+            --green:     #3a7d5e;
+            --green-bg:  #eaf4ef;
+            --amber:     #c07a2a;
+            --amber-bg:  #fdf3e3;
+            --red:       #b03030;
+            --red-bg:    #fdeaea;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--cream);
+            color: var(--ink);
+            min-height: 100vh;
+        }
+
+        /* ── Navbar ── */
+        .navbar {
+            position: fixed; top: 0; width: 100%; z-index: 1000;
+            background: rgba(247,243,236,0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--sand);
+            padding: 0 5%;
+        }
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 68px;
+            width: 90%; max-width: 1200px; margin: auto;
+        }
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.6rem; font-weight: 600;
+            color: var(--ink); text-decoration: none;
+            display: inline-flex; align-items: center; gap: .4rem;
+        }
+        .logo i { color: var(--rust); }
+        .nav-right {
+            display: flex; align-items: center; gap: 1rem;
+        }
+        .btn {
+            padding: .45rem 1.2rem;
+            border-radius: 2px; cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .82rem; letter-spacing: .06em; text-transform: uppercase;
+            transition: background .2s, color .2s;
+            border: none; text-decoration: none;
+            display: inline-flex; align-items: center; gap: .4rem;
+        }
+        .btn-outline {
+            border: 1px solid var(--rust); color: var(--rust); background: transparent;
+        }
+        .btn-outline:hover { background: var(--rust); color: var(--white); }
+        .btn-ghost {
+            color: var(--muted); background: transparent; border: none;
+            font-size: .82rem; letter-spacing: .05em; text-transform: uppercase;
+        }
+        .btn-ghost:hover { color: var(--rust); }
+
+        /* ── Page wrapper ── */
+        .page {
+            padding-top: 68px;
+            min-height: 100vh;
+        }
+
+        /* ── Dashboard header banner ── */
+        .dash-header {
+            background: linear-gradient(120deg, #1a1410 0%, #3d2b1f 60%, #c0522a 100%);
+            padding: 3.5rem 5% 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .dash-header::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: url("https://images.unsplash.com/photo-1488085061387-422e29b40080?w=1400") center/cover no-repeat;
+            opacity: .12;
+        }
+        .dash-header-inner {
+            position: relative;
+            width: 90%; max-width: 1200px; margin: auto;
+            display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 1.5rem;
+        }
+        .user-greeting { color: var(--white); }
+        .user-greeting .label {
+            font-size: .72rem; letter-spacing: .14em; text-transform: uppercase;
+            color: rgba(255,255,255,.5); margin-bottom: .3rem;
+        }
+        .user-greeting h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.4rem; font-weight: 300;
+            line-height: 1.1;
+        }
+        .user-greeting h1 em { color: var(--gold); font-style: italic; }
+        .user-greeting .sub {
+            margin-top: .5rem;
+            color: rgba(255,255,255,.45);
+            font-size: .85rem;
+        }
+
+        /* Stats row */
+        .stats-row {
+            display: flex; gap: 1.5rem; flex-wrap: wrap;
+        }
+        .stat-pill {
+            background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.12);
+            border-radius: 3px;
+            padding: .7rem 1.4rem;
+            text-align: center;
+            min-width: 100px;
+            backdrop-filter: blur(6px);
+            animation: fadeUp .6s both;
+        }
+        .stat-pill:nth-child(1) { animation-delay: .1s; }
+        .stat-pill:nth-child(2) { animation-delay: .2s; }
+        .stat-pill:nth-child(3) { animation-delay: .3s; }
+        .stat-num {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem; font-weight: 400; color: var(--gold);
+            line-height: 1;
+        }
+        .stat-label {
+            font-size: .7rem; letter-spacing: .1em; text-transform: uppercase;
+            color: rgba(255,255,255,.45); margin-top: .2rem;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(18px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Main content ── */
+        .dash-body {
+            width: 90%; max-width: 1200px; margin: 2.5rem auto 4rem;
+        }
+
+        /* Section heading */
+        .dash-section-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.6rem; font-weight: 400;
+            margin-bottom: 1.2rem;
+            display: flex; align-items: center; gap: .7rem;
+            border-bottom: 1px solid var(--sand);
+            padding-bottom: .7rem;
+        }
+        .dash-section-title i { color: var(--rust); font-size: 1.1rem; }
+
+        /* ── Booking cards ── */
+        .bookings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+            gap: 1.5px;
+        }
+
+        .booking-card {
+            background: var(--white);
+            overflow: hidden;
+            position: relative;
+            transition: transform .3s ease, box-shadow .3s ease;
+            animation: fadeUp .55s both;
+        }
+        .booking-card:nth-child(1) { animation-delay: .1s; }
+        .booking-card:nth-child(2) { animation-delay: .2s; }
+        .booking-card:nth-child(3) { animation-delay: .3s; }
+        .booking-card:nth-child(4) { animation-delay: .4s; }
+        .booking-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 50px rgba(26,20,16,.13);
+            z-index: 2;
+        }
+
+        .booking-img {
+            width: 100%; height: 160px; object-fit: cover;
+            display: block;
+            transition: transform .5s ease;
+        }
+        .booking-card:hover .booking-img { transform: scale(1.05); }
+
+        /* Status badge on image */
+        .booking-img-wrap { position: relative; }
+        .status-badge {
+            position: absolute; top: 12px; right: 12px;
+            padding: .28rem .75rem;
+            border-radius: 2px;
+            font-size: .7rem; letter-spacing: .1em; text-transform: uppercase;
+            font-weight: 500;
+        }
+        .status-confirmed  { background: var(--green-bg); color: var(--green); }
+        .status-pending    { background: var(--amber-bg); color: var(--amber); }
+        .status-cancelled  { background: var(--red-bg);   color: var(--red); }
+
+        .booking-body { padding: 1.2rem 1.4rem 1.4rem; }
+        .booking-dest {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4rem; font-weight: 400;
+            margin-bottom: .1rem;
+        }
+        .booking-pkg {
+            font-size: .8rem; color: var(--muted);
+            text-transform: uppercase; letter-spacing: .07em;
+            margin-bottom: .9rem;
+        }
+
+        .booking-meta {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: .6rem 1rem;
+            font-size: .82rem;
+            border-top: 1px solid var(--sand);
+            padding-top: .9rem;
+        }
+        .meta-item .meta-label {
+            font-size: .68rem; letter-spacing: .09em; text-transform: uppercase;
+            color: var(--muted); margin-bottom: .15rem;
+        }
+        .meta-item .meta-value { font-weight: 500; color: var(--ink); }
+        .meta-item .meta-value.price { color: var(--rust); }
+
+        .booking-actions {
+            display: flex; gap: .6rem;
+            padding: 0 1.4rem 1.2rem;
+        }
+        .action-btn {
+            flex: 1; padding: .42rem .5rem;
+            border: 1px solid var(--sand);
+            background: transparent;
+            color: var(--muted);
+            font-family: 'DM Sans', sans-serif;
+            font-size: .75rem; letter-spacing: .07em; text-transform: uppercase;
+            cursor: pointer; border-radius: 2px;
+            transition: all .2s;
+            display: flex; align-items: center; justify-content: center; gap: .35rem;
+        }
+        .action-btn:hover { border-color: var(--rust); color: var(--rust); }
+        .action-btn.danger:hover { border-color: var(--red); color: var(--red); }
+
+        /* ── Empty state ── */
+        .empty-state {
+            text-align: center;
+            padding: 5rem 2rem;
+            color: var(--muted);
+        }
+        .empty-state i {
+            font-size: 3rem; color: var(--sand);
+            display: block; margin-bottom: 1rem;
+        }
+        .empty-state p { font-size: .95rem; margin-bottom: 1.5rem; }
+        .btn-primary {
+            background: var(--rust); color: var(--white);
+            border: none; padding: .6rem 1.8rem;
+            border-radius: 2px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .82rem; letter-spacing: .1em; text-transform: uppercase;
+            cursor: pointer; text-decoration: none;
+            display: inline-block;
+            transition: background .2s;
+        }
+        .btn-primary:hover { background: #a64422; }
+
+        /* ── Upcoming trip highlight ── */
+        .next-trip {
+            background: var(--white);
+            border-left: 3px solid var(--gold);
+            padding: 1.4rem 1.8rem;
+            margin-bottom: 2rem;
+            display: flex; align-items: center; gap: 1.5rem;
+            flex-wrap: wrap;
+            animation: fadeUp .5s .05s both;
+        }
+        .next-trip-icon {
+            font-size: 2rem; color: var(--gold); flex-shrink: 0;
+        }
+        .next-trip-info { flex: 1; min-width: 200px; }
+        .next-trip-info .nt-label {
+            font-size: .68rem; letter-spacing: .14em; text-transform: uppercase;
+            color: var(--muted); margin-bottom: .25rem;
+        }
+        .next-trip-info h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem; font-weight: 400;
+        }
+        .next-trip-info .nt-date {
+            font-size: .82rem; color: var(--muted); margin-top: .15rem;
+        }
+        .next-trip-countdown {
+            text-align: right;
+        }
+        .next-trip-countdown .days {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.8rem; color: var(--rust); line-height: 1;
+        }
+        .next-trip-countdown .days-label {
+            font-size: .68rem; letter-spacing: .12em; text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        /* ── Footer ── */
+        .footer {
+            background: #110d0a; color: rgba(255,255,255,.35);
+            text-align: center; padding: 1.5rem;
+            font-size: .8rem; letter-spacing: .05em;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 640px) {
+            .dash-header-inner { flex-direction: column; align-items: flex-start; }
+            .stats-row { gap: .8rem; }
+            .bookings-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+    <div class="container">
+        <a href="{% url 'home' %}" class="logo">
+            <i class="fas fa-compass"></i> Wanderlust
+        </a>
+        <div class="nav-right">
+            <a href="{% url 'home' %}" class="btn btn-ghost"><i class="fas fa-arrow-left"></i> Back to Home</a>
+            <a href="{% url 'logout' %}" class="btn btn-outline">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="page">
+
+    <!-- Dashboard Header -->
+    <div class="dash-header">
+        <div class="dash-header-inner">
+            <div class="user-greeting">
+                <div class="label">Traveller Profile</div>
+                <h1>Welcome back, <em>{{ request.user.first_name|default:request.user.username }}</em></h1>
+                <div class="sub">{{ request.user.email }} &nbsp;·&nbsp; Member since {{ request.user.date_joined|date:"M Y" }}</div>
+            </div>
+            <div class="stats-row">
+                <div class="stat-pill">
+                    <div class="stat-num">{{ bookings.count|default:"0" }}</div>
+                    <div class="stat-label">Total Trips</div>
+                </div>
+                <div class="stat-pill">
+                    <div class="stat-num">{{ confirmed_count|default:"0" }}</div>
+                    <div class="stat-label">Confirmed</div>
+                </div>
+                <div class="stat-pill">
+                    <div class="stat-num">{{ upcoming_count|default:"0" }}</div>
+                    <div class="stat-label">Upcoming</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main body -->
+    <div class="dash-body">
+
+        <!-- Next upcoming trip highlight -->
+        {% if next_booking %}
+        <div class="next-trip">
+            <div class="next-trip-icon"><i class="fas fa-plane-departure"></i></div>
+            <div class="next-trip-info">
+                <div class="nt-label">Latest Booking</div>
+                <h3>{{ next_booking.package_name }}</h3>
+                <div class="nt-date">
+                    <i class="fas fa-calendar-alt"></i>
+                    Booked on {{ next_booking.booking_date|date:"D, d M Y" }}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Bookings section -->
+        <h2 class="dash-section-title">
+            <i class="fas fa-suitcase-rolling"></i> My Bookings
+        </h2>
+
+        {% if bookings %}
+        <div class="bookings-grid">
+            {% for booking in bookings %}
+            <div class="booking-card">
+                <div class="booking-img-wrap">
+                    <img
+                        class="booking-img"
+                        src="{{ booking.image_url|default:'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=600' }}"
+                        alt="{{ booking.package_name }}"
+                    >
+                    <span class="status-badge status-{{ booking.status|lower }}">
+                        {% if booking.status == 'confirmed' %}<i class="fas fa-check-circle"></i>
+                        {% elif booking.status == 'pending' %}<i class="fas fa-clock"></i>
+                        {% else %}<i class="fas fa-times-circle"></i>{% endif %}
+                        {{ booking.status|capfirst }}
+                    </span>
+                </div>
+                <div class="booking-body">
+                    <div class="booking-dest">{{ booking.package_name }}</div>
+                    <div class="booking-pkg">Booking ID: {{ booking.transaction_id }}</div>
+                    <div class="booking-meta">
+                        <div class="meta-item">
+                            <div class="meta-label">Booked On</div>
+                            <div class="meta-value">{{ today|date:"d M Y" }}</div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="meta-label">Payment Method</div>
+                            <div class="meta-value">{{ booking.payment_method }}</div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="meta-label">Traveler</div>
+                            <div class="meta-value">{{ booking.traveler_name|default:request.user.first_name }}</div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="meta-label">Total Paid</div>
+                            <div class="meta-value price">₹{{ booking.amount|floatformat:0 }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="booking-actions">
+                    <a href="{% url 'booking_confirmation' booking.transaction_id %}" class="action-btn"><i class="fas fa-eye"></i> View</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% else %}
+        <!-- Empty state -->
+        <div class="empty-state">
+            <i class="fas fa-map-marked-alt"></i>
+            <p>You haven't made any bookings yet.<br>Start exploring our destinations!</p>
+            <a href="{% url 'packages' %}" class="btn-primary">Browse Packages</a>
+        </div>
+        {% endif %}
+
+    </div><!-- /.dash-body -->
+</div><!-- /.page -->
+
+<footer class="footer">
+    <p>© 2026 Wanderlust Travels</p>
+</footer>
+
+</body>
+</html>

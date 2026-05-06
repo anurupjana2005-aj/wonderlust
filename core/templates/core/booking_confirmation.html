@@ -1,0 +1,75 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Details — Wanderlust Travels</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { margin: 0; font-family: 'DM Sans', sans-serif; background: #f7f3ec; color: #1a1410; }
+        .page { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
+        .card { background: #fff; border: 1px solid #e6dcc8; border-radius: 14px; box-shadow: 0 20px 60px rgba(0,0,0,.06); overflow: hidden; }
+        .hero { background: #1a1410; color: #fff; padding: 2.5rem 2rem; }
+        .hero h1 { margin:0; font-size: 2rem; font-weight: 400; }
+        .hero p { margin: .8rem 0 0; opacity: .75; }
+        .content { padding: 2rem; }
+        .label { display: inline-flex; align-items: center; gap:.5rem; font-size:.8rem; text-transform: uppercase; letter-spacing:.15em; color:#c0522a; }
+        .detail-grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:1rem; margin:1.5rem 0; }
+        .detail-block { background:#f7f3ec; border:1px solid #e6dcc8; border-radius:10px; padding:1rem; }
+        .detail-block .title { font-size:.78rem; letter-spacing:.1em; text-transform:uppercase; color:#7a6e62; margin-bottom:.6rem; }
+        .detail-block .value { font-size:1.05rem; font-weight:600; }
+        .button-row { display:flex; flex-wrap:wrap; gap:.8rem; margin-top:1.5rem; }
+        .btn { display:inline-flex; align-items:center; justify-content:center; gap:.5rem; text-decoration:none; padding:.9rem 1.4rem; border-radius:6px; border:none; cursor:pointer; font-weight:600; }
+        .btn-primary { background:#c0522a; color:#fff; }
+        .btn-secondary { background:transparent; border:1px solid #c0522a; color:#c0522a; }
+        .status { display:inline-block; padding:.35rem .75rem; border-radius:999px; letter-spacing:.06em; font-size:.78rem; text-transform:uppercase; }
+        .status-confirmed { background:#eaf4ef; color:#236440; }
+        .status-pending { background:#fef4e9; color:#9d5e1d; }
+        .status-cancelled { background:#fdeaea; color:#9b2c2c; }
+    </style>
+</head>
+<body>
+<div class="page">
+    <div class="card">
+        <div class="hero">
+            <div class="label"><i class="fas fa-check-circle"></i> Booking Confirmed</div>
+            <h1>{{ booking.package_name }}</h1>
+            <p>Your package has been reserved successfully. Review the booking details below and return to your dashboard at any time.</p>
+        </div>
+        <div class="content">
+            <div class="detail-grid">
+                <div class="detail-block">
+                    <div class="title">Booking ID</div>
+                    <div class="value">{{ booking.transaction_id }}</div>
+                </div>
+                <div class="detail-block">
+                    <div class="title">Amount Paid</div>
+                    <div class="value">₹{{ booking.amount|floatformat:0 }}</div>
+                </div>
+                <div class="detail-block">
+                    <div class="title">Payment Method</div>
+                    <div class="value">{{ booking.payment_method }}</div>
+                </div>
+                <div class="detail-block">
+                    <div class="title">Status</div>
+                    <div class="value"><span class="status status-{{ booking.status|lower }}">{{ booking.status|capfirst }}</span></div>
+                </div>
+                <div class="detail-block">
+                    <div class="title">Booked On</div>
+                    <div class="value">{{ today|date:"D, d M Y" }}</div>
+                </div>
+                <div class="detail-block">
+                    <div class="title">Traveler</div>
+                    <div class="value">{{ request.user.first_name|default:request.user.username }}</div>
+                </div>
+            </div>
+            <div class="button-row">
+                <a href="{% url 'dashboard' %}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+                <a href="{% url 'home' %}" class="btn btn-primary"><i class="fas fa-home"></i> Go to Home</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

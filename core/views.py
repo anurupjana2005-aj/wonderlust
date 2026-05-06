@@ -1,9 +1,14 @@
+from datetime import date
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.shortcuts import redirect, render
-
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+import json
+from .models import Booking
 # Package pricing mapping
 PACKAGES = {
     'Maldives Overwater Escape': {'price': 185000, 'currency': '₹'},
@@ -12,6 +17,16 @@ PACKAGES = {
     'Rajasthan Heritage Tour': {'price': 55000, 'currency': '₹'},
     'Kerala Backwater & Wildlife': {'price': 38000, 'currency': '₹'},
     'Sikkim Serenity': {'price': 32000, 'currency': '₹'},
+}
+
+# Package images mapping
+PACKAGE_IMAGES = {
+    'Maldives Overwater Escape': 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600',
+    'Goa Beach Escape': 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=600',
+    'Himalayan Adventure': 'https://images.unsplash.com/photo-1464822759844-d150f39b8b3c?w=600',
+    'Rajasthan Heritage Tour': 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=600',
+    'Kerala Backwater & Wildlife': 'https://images.unsplash.com/photo-1593693397690-362cb9666fc2?w=600',
+    'Sikkim Serenity': 'https://images.unsplash.com/photo-1544008230-ac1e1fb4f4f4?w=600',
 }
 
 def index(request):
@@ -66,8 +81,17 @@ def signup(request):
 
 @login_required(login_url='login')
 def booking(request):
+    if request.method == 'POST':
+        # Save traveler details to session
+        traveler_name = request.POST.get('fullname', '').strip()
+        if traveler_name:
+            request.session['traveler_name'] = traveler_name
+        return redirect('payment')
+    
     # Get package from URL parameter
     package_name = request.GET.get('package')
+    if package_name:
+        package_name = package_name.strip()
     
     if package_name:
         # Validate package exists
@@ -127,3 +151,79 @@ def destination(request):
 
 def packages(request):
     return render(request, 'core/packages.html')
+
+@login_required(login_url='login')
+def dashboard(request):
+    bookings = Booking.objects.filter(user=request.user).order_by('-booking_date')
+    confirmed_count = bookings.filter(status='confirmed').count()
+    upcoming_count = bookings.filter(status='confirmed').count()
+    next_booking = bookings.first() if bookings.exists() else None
+
+    default_image = 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=600'
+    # Ensure each booking has the correct package image
+    for booking in bookings:
+        package_key = booking.package_name.strip() if booking.package_name else ''
+        # Always use PACKAGE_IMAGES mapping for consistency
+        booking.image_url = PACKAGE_IMAGES.get(package_key, default_image)
+
+    context = {
+        'bookings': bookings,
+        'confirmed_count': confirmed_count,
+        'upcoming_count': upcoming_count,
+        'next_booking': next_booking,
+        'today': date.today(),
+    }
+    return render(request, 'core/dashboard.html', context)
+
+@login_required(login_url='login')
+def booking_confirmation(request, txn_id):
+    """Display booking confirmation details"""
+    booking = Booking.objects.filter(transaction_id=txn_id, user=request.user).first()
+    
+    if not booking:
+        messages.error(request, 'Booking not found.')
+        return redirect('dashboard')
+    
+    context = {
+        'booking': booking,
+        'today': date.today(),
+    }
+    return render(request, 'core/booking_confirmation.html', context)
+
+@csrf_exempt
+@login_required(login_url='login')
+@require_http_methods(["POST"])
+def create_booking(request):
+    """API endpoint to create a booking after successful payment"""
+    try:
+        data = json.loads(request.body)
+        
+        selected_package = request.session.get('selected_package')
+        selected_price = request.session.get('selected_package_price')
+        traveler_name = request.session.get('traveler_name', '')
+        
+        if not selected_package or not selected_price:
+            return JsonResponse({'success': False, 'message': 'Package not found in session'}, status=400)
+        
+        selected_package = selected_package.strip()
+        default_image = 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=600'
+        final_amount = data.get('amount', selected_price)
+        booking = Booking.objects.create(
+            user=request.user,
+            package_name=selected_package,
+            amount=final_amount,
+            transaction_id=data.get('txn_id'),
+            payment_method=data.get('method', 'Online'),
+            status='confirmed',
+            traveler_name=traveler_name,
+            image_url=PACKAGE_IMAGES.get(selected_package, default_image)
+        )
+        
+        # Clear session
+        request.session.pop('selected_package', None)
+        request.session.pop('selected_package_price', None)
+        request.session.pop('traveler_name', None)
+        
+        return JsonResponse({'success': True, 'booking_id': booking.id}, status=200)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)

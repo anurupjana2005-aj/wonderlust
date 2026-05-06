@@ -20,12 +20,16 @@ from core import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', views.index, name='home'),
     path('', views.index, name='index'),
     path('login/', views.login, name='login'),
     path('signup/', views.signup, name='signup'),
     path('logout/', views.logout_view, name='logout'),
+    path('dashboard/', views.dashboard, name='dashboard'),
     path('booking/', views.booking, name='booking'),
     path('destination/', views.destination, name='destination'),
     path('packages/', views.packages, name='packages'),
     path('payment/', views.payment, name='payment'),
+    path('booking/confirmation/<str:txn_id>/', views.booking_confirmation, name='booking_confirmation'),
+    path('api/create-booking/', views.create_booking, name='create_booking'),
 ]
