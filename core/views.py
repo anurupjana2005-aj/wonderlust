@@ -1,4 +1,3 @@
-from datetime import date
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
@@ -23,7 +22,7 @@ PACKAGES = {
 PACKAGE_IMAGES = {
     'Maldives Overwater Escape': 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600',
     'Goa Beach Escape': 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=600',
-    'Himalayan Adventure': 'https://images.unsplash.com/photo-1464822759844-d150f39b8b3c?w=600',
+    'Himalayan Adventure': 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=600',
     'Rajasthan Heritage Tour': 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=600',
     'Kerala Backwater & Wildlife': 'https://images.unsplash.com/photo-1593693397690-362cb9666fc2?w=600',
     'Sikkim Serenity': 'https://images.unsplash.com/photo-1544008230-ac1e1fb4f4f4?w=600',
@@ -171,7 +170,6 @@ def dashboard(request):
         'confirmed_count': confirmed_count,
         'upcoming_count': upcoming_count,
         'next_booking': next_booking,
-        'today': date.today(),
     }
     return render(request, 'core/dashboard.html', context)
 
@@ -186,7 +184,6 @@ def booking_confirmation(request, txn_id):
     
     context = {
         'booking': booking,
-        'today': date.today(),
     }
     return render(request, 'core/booking_confirmation.html', context)
 
