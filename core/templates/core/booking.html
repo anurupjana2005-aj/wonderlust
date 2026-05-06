@@ -4,20 +4,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Booking Page – Wanderlust Travels</title>
+    <title>Booking – Wanderlust Travels</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            --ink:   #1a1410;
-            --cream: #f7f3ec;
-            --sand:  #e8dcc8;
-            --rust:  #c0522a;
-            --gold:  #b8924a;
-            --muted: #7a6e62;
-            --white: #ffffff;
+            --ink:     #1a1410;
+            --cream:   #f7f3ec;
+            --sand:    #e8dcc8;
+            --rust:    #c0522a;
+            --gold:    #b8924a;
+            --muted:   #7a6e62;
+            --white:   #ffffff;
+            --success: #2a7c6f;
+            --error:   #c0522a;
         }
 
         html { scroll-behavior: smooth; }
@@ -33,7 +35,7 @@
         /* ── Navbar ── */
         .navbar {
             position: fixed; top: 0; width: 100%; z-index: 100;
-            background: rgba(247,243,236,0.92);
+            background: rgba(247,243,236,0.95);
             backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--sand);
             padding: 0 5%;
@@ -55,11 +57,11 @@
         }
         .nav-links a:hover, .nav-links a.active { color: var(--rust); }
 
-        /* ── Hero Banner ── */
+        /* ── Hero ── */
         .booking-hero {
             margin-top: 68px;
-            height: 38vh; min-height: 260px;
-            background: linear-gradient(135deg, #1a1410 0%, #3d2b1f 60%, #c0522a 100%);
+            height: 44vh; min-height: 300px;
+            background: linear-gradient(135deg, #1a1410 0%, #3d2b1f 55%, #c0522a 100%);
             display: flex; flex-direction: column;
             align-items: center; justify-content: center;
             text-align: center;
@@ -69,32 +71,73 @@
             content: '';
             position: absolute; inset: 0;
             background: url('https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1400') center/cover no-repeat;
-            opacity: .18;
+            opacity: .15;
+        }
+        /* Decorative border frame */
+        .booking-hero::after {
+            content: '';
+            position: absolute; inset: 18px;
+            border: 1px solid rgba(184,146,74,.22);
+            pointer-events: none;
         }
         .booking-hero-inner { position: relative; z-index: 1; padding: 0 1rem; }
         .booking-hero-label {
-            font-size: .75rem; letter-spacing: .22em; text-transform: uppercase;
-            color: var(--gold); margin-bottom: .8rem;
+            font-size: .72rem; letter-spacing: .28em; text-transform: uppercase;
+            color: var(--gold); margin-bottom: .9rem;
+            display: flex; align-items: center; justify-content: center; gap: .7rem;
+        }
+        .booking-hero-label::before,
+        .booking-hero-label::after {
+            content: ''; display: block;
+            width: 32px; height: 1px;
+            background: var(--gold); opacity: .5;
         }
         .booking-hero h1 {
             font-family: 'Cormorant Garamond', serif;
-            font-size: clamp(2.4rem, 5vw, 4rem);
+            font-size: clamp(2.6rem, 5.5vw, 4.4rem);
             font-weight: 300; color: var(--white);
-            line-height: 1.1; margin-bottom: .8rem;
+            line-height: 1.05; margin-bottom: .9rem;
         }
         .booking-hero h1 em { font-style: italic; color: var(--gold); }
-        .booking-hero p { color: rgba(255,255,255,.6); font-size: .92rem; }
+        .booking-hero p { color: rgba(255,255,255,.55); font-size: .88rem; letter-spacing: .04em; }
 
-        /* ── Page Layout ── */
-        .booking-section {
-            padding: 4rem 5% 6rem;
-            display: flex; justify-content: center;
+        /* ── Progress Steps ── */
+        .progress-bar {
+            background: var(--white);
+            border-bottom: 1px solid var(--sand);
+            padding: 1.1rem 5%;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .progress-step {
+            display: flex; align-items: center; gap: .55rem;
+            font-size: .72rem; letter-spacing: .08em; text-transform: uppercase;
+            color: var(--muted);
+        }
+        .progress-step.active { color: var(--rust); }
+        .step-num {
+            width: 26px; height: 26px; border-radius: 50%;
+            border: 1.5px solid var(--sand);
+            display: flex; align-items: center; justify-content: center;
+            font-size: .72rem; font-weight: 500; background: var(--cream);
+        }
+        .progress-step.active .step-num {
+            border-color: var(--rust); background: var(--rust); color: var(--white);
+        }
+        .step-line { width: 50px; height: 1px; background: var(--sand); margin: 0 .4rem; }
+
+        /* ── Layout ── */
+        .booking-layout {
+            padding: 3rem 5% 6rem;
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 2rem;
+            max-width: 1080px;
+            margin: 0 auto;
         }
 
         /* ── Form Card ── */
         .booking-card {
             background: var(--white);
-            width: 100%; max-width: 680px;
             border: 1px solid var(--sand);
             animation: fadeUp .5s ease forwards;
             opacity: 0; transform: translateY(24px);
@@ -107,160 +150,338 @@
             background: var(--ink); color: var(--white);
             padding: 1.8rem 2.2rem;
             border-bottom: 2px solid var(--rust);
+            display: flex; align-items: flex-start; justify-content: space-between;
         }
         .booking-card-header h2 {
             font-family: 'Cormorant Garamond', serif;
             font-size: 1.9rem; font-weight: 400;
         }
         .booking-card-header p {
-            color: rgba(255,255,255,.5);
-            font-size: .82rem; margin-top: .3rem; letter-spacing: .04em;
+            color: rgba(255,255,255,.4);
+            font-size: .78rem; margin-top: .3rem; letter-spacing: .04em;
         }
+        .secure-badge {
+            display: flex; align-items: center; gap: .4rem;
+            font-size: .7rem; color: rgba(255,255,255,.38);
+            border: 1px solid rgba(255,255,255,.1);
+            padding: .32rem .65rem; white-space: nowrap;
+        }
+        .secure-badge i { color: var(--gold); font-size: .68rem; }
 
         .booking-card-body { padding: 2rem 2.2rem 2.4rem; }
 
-        /* ── Form Elements ── */
-        .form-group { margin-bottom: 1.25rem; }
-
-        label {
-            display: block;
-            font-size: .72rem; letter-spacing: .12em; text-transform: uppercase;
-            color: var(--muted); margin-bottom: .4rem;
-            font-weight: 500;
+        /* Selected Package Banner */
+        .pkg-banner {
+            background: linear-gradient(135deg, #1a1410, #3d2b1f);
+            border-left: 3px solid var(--rust);
+            padding: 1rem 1.2rem;
+            margin-bottom: 1.8rem;
+            display: flex; align-items: center; gap: 1rem;
         }
+        .pkg-banner i { color: var(--gold); font-size: 1.1rem; flex-shrink: 0; }
+        .pkg-banner-label {
+            font-size: .66rem; letter-spacing: .14em; text-transform: uppercase;
+            color: rgba(255,255,255,.4); margin-bottom: .2rem;
+        }
+        .pkg-banner-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem; color: var(--white);
+        }
+
+        /* ── Section Dividers ── */
+        .form-section-title {
+            display: flex; align-items: center; gap: .7rem;
+            margin: 1.8rem 0 1.2rem;
+        }
+        .form-section-title:first-child { margin-top: 0; }
+        .form-section-title .sec-icon {
+            color: var(--rust); font-size: .8rem;
+            width: 26px; height: 26px;
+            border: 1px solid rgba(192,82,42,.25);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .form-section-title span {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.05rem; font-weight: 600; letter-spacing: .04em;
+        }
+        .form-section-title::after {
+            content: ''; flex: 1; height: 1px; background: var(--sand);
+        }
+
+        /* ── Form Elements ── */
+        .form-group { margin-bottom: 1.2rem; }
+
+        .form-label {
+            display: flex; align-items: center; justify-content: space-between;
+            font-size: .7rem; letter-spacing: .12em; text-transform: uppercase;
+            color: var(--muted); margin-bottom: .42rem; font-weight: 500;
+        }
+        .form-label .req { color: var(--rust); margin-left: .2rem; }
+        .form-label .hint {
+            font-size: .68rem; text-transform: none; letter-spacing: 0;
+            color: var(--muted); opacity: .7; font-style: italic;
+        }
+
+        /* Input wrapper with icon */
+        .input-wrap { position: relative; }
+        .input-icon {
+            position: absolute; left: .9rem; top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted); font-size: .78rem; pointer-events: none;
+            transition: color .2s;
+        }
+        .input-wrap:focus-within .input-icon { color: var(--rust); }
+
+        /* Validation icon */
+        .val-icon {
+            position: absolute; right: .9rem; top: 50%;
+            transform: translateY(-50%);
+            font-size: .78rem; display: none; pointer-events: none;
+        }
+        .val-icon.show { display: block; }
+        .val-icon.ok  { color: var(--success); }
+        .val-icon.err { color: var(--rust); }
 
         input[type="text"],
         input[type="number"],
         input[type="tel"],
-        input[type="datetime-local"],
+        input[type="date"],
         select,
         textarea {
             width: 100%;
             border: 1px solid var(--sand);
             background: var(--cream);
-            padding: .65rem .9rem;
-            border-radius: 2px;
+            padding: .72rem .95rem .72rem 2.4rem;
             font-family: 'DM Sans', sans-serif;
-            font-size: .9rem;
-            color: var(--ink);
+            font-size: .88rem; color: var(--ink);
             outline: none;
-            transition: border-color .2s, box-shadow .2s;
+            transition: border-color .2s, box-shadow .2s, background .2s;
+            -webkit-appearance: none; appearance: none;
+            border-radius: 0;
         }
-
-        input[type="text"]:focus,
-        input[type="number"]:focus,
-        input[type="tel"]:focus,
-        input[type="datetime-local"]:focus,
-        select:focus,
-        textarea:focus {
+        input:focus, select:focus, textarea:focus {
             border-color: var(--rust);
-            box-shadow: 0 0 0 3px rgba(192,82,42,.1);
+            box-shadow: 0 0 0 3px rgba(192,82,42,.08);
             background: var(--white);
         }
-
-        textarea {
-            resize: vertical;
-            height: 80px;
-        }
-
-        /* Radio Group */
-        .radio-group {
-            display: flex; gap: 1.2rem; align-items: center; flex-wrap: wrap;
-            margin-top: .3rem;
-        }
-        .radio-group label {
-            font-weight: 400; font-size: .85rem;
-            text-transform: none; letter-spacing: 0;
-            color: var(--ink);
-            display: flex; align-items: center; cursor: pointer;
-        }
-        .radio-group input[type="radio"] {
-            margin-right: 6px;
-            accent-color: var(--rust);
-        }
-
-        /* Fieldset */
-        fieldset {
-            border: 1px solid var(--sand);
-            border-radius: 2px;
-            padding: 1.4rem 1.4rem 1rem;
-            margin-bottom: 1.4rem;
-        }
-        legend {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1rem; font-weight: 600;
-            color: var(--ink);
-            padding: 0 .5rem;
-            letter-spacing: .04em;
-        }
+        input.valid   { border-color: var(--success); background: #f4faf8; }
+        input.invalid { border-color: var(--rust);    background: #fdf6f4; }
+        textarea { padding-left: .95rem; resize: vertical; height: 82px; }
+        select   { padding-left: .95rem; }
 
         /* Row */
         .row { display: flex; gap: 1.2rem; }
-        .col { flex: 1; }
+        .col  { flex: 1; }
 
-        /* Checkbox */
-        .checkbox-group {
-            display: flex; align-items: center; gap: .5rem;
-            margin-bottom: 1rem;
-            font-size: .84rem; color: var(--muted);
-            cursor: pointer;
+        /* Radio — pill style */
+        .radio-group {
+            display: flex; gap: 0; overflow: hidden;
+            border: 1px solid var(--sand);
         }
-        .checkbox-group input[type="checkbox"] {
-            accent-color: var(--rust);
-            width: 15px; height: 15px;
+        .radio-option { flex: 1; position: relative; }
+        .radio-option input[type="radio"] { display: none; }
+        .radio-option label {
+            display: flex; align-items: center; justify-content: center; gap: .38rem;
+            padding: .68rem .4rem; cursor: pointer;
+            font-size: .78rem; font-weight: 400;
+            text-transform: none; letter-spacing: 0;
+            color: var(--muted); background: var(--cream);
+            border-right: 1px solid var(--sand);
+            transition: all .2s; margin: 0;
         }
+        .radio-option:last-child label { border-right: none; }
+        .radio-option input:checked + label {
+            background: var(--rust); color: var(--white);
+        }
+
+        /* ID type cards */
+        .id-type-grid {
+            display: grid; grid-template-columns: repeat(3,1fr);
+            gap: 0; border: 1px solid var(--sand);
+            overflow: hidden; margin-bottom: 1rem;
+        }
+        .id-option { position: relative; }
+        .id-option input { display: none; }
+        .id-option label {
+            display: flex; flex-direction: column; align-items: center;
+            padding: .9rem .5rem; cursor: pointer;
+            font-size: .74rem; text-transform: none; letter-spacing: 0;
+            color: var(--muted); background: var(--cream);
+            border-right: 1px solid var(--sand);
+            transition: all .2s; margin: 0; gap: .35rem;
+        }
+        .id-option:last-child label { border-right: none; }
+        .id-option label i { font-size: 1.1rem; color: var(--muted); transition: color .2s; }
+        .id-option input:checked + label {
+            background: rgba(192,82,42,.07); color: var(--rust);
+        }
+        .id-option input:checked + label i { color: var(--rust); }
+
+        /* Counter */
+        .counter-row { display: flex; gap: 1.2rem; }
+        .counter-field { flex: 1; }
+        .counter-wrap {
+            display: flex; align-items: stretch;
+            border: 1px solid var(--sand); overflow: hidden;
+        }
+        .counter-btn {
+            background: var(--sand); border: none;
+            width: 38px; cursor: pointer;
+            font-size: 1.1rem; color: var(--muted);
+            transition: background .2s, color .2s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .counter-btn:hover { background: var(--rust); color: var(--white); }
+        .counter-wrap input {
+            flex: 1; border: none; border-left: 1px solid var(--sand);
+            border-right: 1px solid var(--sand);
+            text-align: center; font-size: .92rem; font-weight: 500;
+            background: var(--cream); padding: .68rem .4rem;
+            -webkit-appearance: none;  -moz-appearance: textfield;
+             appearance: none; 
+
+        }
+        .counter-wrap input::-webkit-outer-spin-button,
+        .counter-wrap input::-webkit-inner-spin-button { -webkit-appearance: none; }
+        .counter-wrap input:focus { background: var(--white); outline: none; box-shadow: none; }
 
         /* Phone row */
-        .phone-row { display: flex; gap: .7rem; }
-        .phone-row select { width: 90px; flex-shrink: 0; }
+        .phone-row { display: flex; }
+        .phone-row select {
+            width: 88px; flex-shrink: 0;
+            border-right: none; background: var(--sand);
+            font-size: .82rem; padding-left: .6rem;
+        }
         .phone-row input { flex: 1; }
 
-        /* Error */
-        .error-msg {
-            color: var(--rust); font-size: .75rem;
-            display: none; margin-top: .35rem;
+        /* Checkbox */
+        .checkbox-wrap {
+            display: flex; align-items: center; gap: .65rem;
+            padding: .75rem 1rem;
+            background: var(--cream); border: 1px solid var(--sand);
+            cursor: pointer; margin-bottom: 1rem;
+            transition: border-color .2s;
+        }
+        .checkbox-wrap:hover { border-color: rgba(192,82,42,.4); }
+        .checkbox-wrap input[type="checkbox"] {
+            width: 15px; height: 15px; accent-color: var(--rust);
+            cursor: pointer; flex-shrink: 0;
+        }
+        .checkbox-wrap span { font-size: .82rem; color: var(--muted); }
+
+        /* Error / hint messages */
+        .field-msg {
+            font-size: .72rem; margin-top: .35rem;
+            display: none; align-items: center; gap: .3rem;
             letter-spacing: .02em;
         }
+        .field-msg.show    { display: flex; }
+        .field-msg.err-msg { color: var(--rust); }
+        .field-msg.ok-msg  { color: var(--success); }
+        .field-msg.tip-msg { color: var(--muted); }
 
         /* Submit */
         .submit-btn {
-            width: 100%;
-            background: var(--ink);
-            color: var(--white);
-            border: none; padding: .9rem;
-            border-radius: 2px;
+            width: 100%; background: var(--ink); color: var(--white);
+            border: none; padding: 1rem;
             font-family: 'DM Sans', sans-serif;
-            font-size: .88rem; letter-spacing: .1em; text-transform: uppercase;
-            cursor: pointer;
-            margin-top: .8rem;
-            transition: background .2s;
+            font-size: .85rem; letter-spacing: .12em; text-transform: uppercase;
+            cursor: pointer; margin-top: 1.2rem;
+            display: flex; align-items: center; justify-content: center; gap: .7rem;
+            position: relative; overflow: hidden;
+            transition: transform .15s;
         }
-        .submit-btn:hover { background: var(--rust); }
+        .submit-btn::before {
+            content: ''; position: absolute; inset: 0;
+            background: var(--rust); transform: translateX(-101%);
+            transition: transform .35s ease;
+        }
+        .submit-btn:hover::before { transform: translateX(0); }
+        .submit-btn span, .submit-btn i { position: relative; z-index: 1; }
+        .submit-btn:active { transform: scale(.99); }
 
         /* Back link */
         .home-link {
-            text-align: center; padding: 1.4rem;
+            text-align: center; padding: 1.2rem;
             border-top: 1px solid var(--sand);
         }
         .home-link a {
             text-decoration: none; color: var(--muted);
-            font-size: .82rem; letter-spacing: .08em; text-transform: uppercase;
-            transition: color .2s;
+            font-size: .78rem; letter-spacing: .1em; text-transform: uppercase;
+            transition: color .2s; display: inline-flex; align-items: center; gap: .4rem;
         }
         .home-link a:hover { color: var(--rust); }
 
+        /* ── Sidebar ── */
+        .booking-sidebar {
+            display: flex; flex-direction: column; gap: 2px;
+            animation: fadeUp .55s .15s ease forwards;
+            opacity: 0; transform: translateY(24px);
+        }
+        .sidebar-card { background: var(--white); border: 1px solid var(--sand); }
+        .sidebar-card-header {
+            background: var(--ink); color: var(--white);
+            padding: .9rem 1.3rem;
+            display: flex; align-items: center; gap: .55rem;
+        }
+        .sidebar-card-header i { color: var(--gold); font-size: .82rem; }
+        .sidebar-card-header h4 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: .98rem; font-weight: 400;
+        }
+        .sidebar-card-body { padding: 1.1rem 1.3rem; }
+
+        .why-list { display: flex; flex-direction: column; gap: .8rem; }
+        .why-item { display: flex; align-items: flex-start; gap: .7rem; }
+        .why-item > i { color: var(--gold); font-size: .8rem; margin-top: .18rem; flex-shrink: 0; }
+        .why-title { font-size: .8rem; font-weight: 500; color: var(--ink); margin-bottom: .08rem; }
+        .why-desc  { font-size: .73rem; color: var(--muted); line-height: 1.5; }
+
+        .id-chips { display: flex; flex-wrap: wrap; gap: .38rem; }
+        .id-chip {
+            background: var(--cream); border: 1px solid var(--sand);
+            font-size: .7rem; padding: .25rem .65rem;
+            color: var(--ink); display: flex; align-items: center; gap: .28rem;
+        }
+        .id-chip i { color: var(--success); font-size: .62rem; }
+
+        .help-card { background: var(--ink); border-color: rgba(255,255,255,.05); }
+        .help-card .sidebar-card-body { padding: 1.3rem; }
+        .help-card h5 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.05rem; color: var(--white); font-weight: 400; margin-bottom: .45rem;
+        }
+        .help-card p { font-size: .76rem; color: rgba(255,255,255,.4); line-height: 1.6; margin-bottom: .9rem; }
+        .help-contact { display: flex; flex-direction: column; gap: .45rem; }
+        .help-contact a {
+            display: flex; align-items: center; gap: .55rem;
+            font-size: .78rem; color: var(--gold); text-decoration: none; transition: color .2s;
+        }
+        .help-contact a:hover { color: var(--white); }
+        .help-contact i { font-size: .72rem; width: 13px; }
+
         /* ── Footer ── */
         .footer {
-            background: #110d0a; color: rgba(255,255,255,.35);
+            background: #110d0a; color: rgba(255,255,255,.3);
             text-align: center; padding: 1.5rem;
-            font-size: .8rem; letter-spacing: .05em;
+            font-size: .78rem; letter-spacing: .05em;
         }
 
-        /* Responsive */
+        /* ── Responsive ── */
+        @media (max-width: 900px) {
+            .booking-layout { grid-template-columns: 1fr; max-width: 680px; }
+            .booking-sidebar { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+            .help-card { grid-column: 1 / -1; }
+        }
         @media (max-width: 600px) {
-            .row { flex-direction: column; }
-            .booking-card-body { padding: 1.5rem; }
+            .row { flex-direction: column; gap: 0; }
+            .booking-card-body { padding: 1.4rem; }
+            .booking-card-header { padding: 1.4rem; }
             .nav-links { display: none; }
+            .booking-sidebar { grid-template-columns: 1fr; }
+            .progress-bar { gap: 0; }
+            .step-line { width: 24px; }
         }
     </style>
 </head>
@@ -281,131 +502,342 @@
 <!-- Hero -->
 <section class="booking-hero">
     <div class="booking-hero-inner">
-        <p class="booking-hero-label"><i class="fas fa-ticket-alt"></i> &nbsp; Reserve Your Journey</p>
+        <p class="booking-hero-label"><i class="fas fa-ticket-alt"></i> Reserve Your Journey</p>
         <h1>Your <em>Adventure</em><br>Awaits</h1>
-        <p>Fill in your details and our team will get in touch within 24 hours.</p>
+        <p>Fill in your details and our team will confirm within 24 hours.</p>
     </div>
 </section>
 
-<!-- Booking Section -->
-<section class="booking-section">
+<!-- Progress -->
+<div class="progress-bar">
+    <div class="progress-step active">
+        <div class="step-num">1</div><span>Your Details</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="progress-step">
+        <div class="step-num">2</div><span>Review</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="progress-step">
+        <div class="step-num">3</div><span>Payment</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="progress-step">
+        <div class="step-num">4</div><span>Confirmed</span>
+    </div>
+</div>
+
+<!-- Layout -->
+<div class="booking-layout">
+
+    <!-- ── Main Form ── -->
     <div class="booking-card">
         <div class="booking-card-header">
-            <h2>Booking Form</h2>
-            <p>All fields marked are required &nbsp;·&nbsp; Secure &amp; Confidential</p>
+            <div>
+                <h2>Booking Form</h2>
+                <p>Fields marked <span style="color:var(--rust)">*</span> are required &nbsp;·&nbsp; Secure &amp; Confidential</p>
+            </div>
+            <div class="secure-badge"><i class="fas fa-lock"></i> SSL Secured</div>
         </div>
 
         <div class="booking-card-body">
-            <form id="bookingForm">
+            <form id="bookingForm" novalidate>
 
                 {% if selected_package %}
-                <div class="form-group" style="background: #f0ede5; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem; border-left: 4px solid #c0522a;">
-                    <label style="color: #7a6e62; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em;">Selected Package</label>
-                    <p style="font-size: 1.1rem; color: #1a1410; font-weight: 500; margin-top: 0.4rem;">{{ selected_package }}</p>
+                <div class="pkg-banner">
+                    <i class="fas fa-suitcase-rolling"></i>
+                    <div>
+                        <div class="pkg-banner-label">Selected Package</div>
+                        <div class="pkg-banner-name">{{ selected_package }}</div>
+                    </div>
                 </div>
                 {% endif %}
 
-                <div class="form-group">
-                    <label for="fullname">Full Name</label>
-                    <input type="text" id="fullname" name="fullname" placeholder="Enter your full name" required>
+                <!-- ── Personal Info ── -->
+                <div class="form-section-title">
+                    <div class="sec-icon"><i class="fas fa-user"></i></div>
+                    <span>Personal Information</span>
                 </div>
 
+                <!-- Full Name -->
+                <div class="form-group">
+                    <div class="form-label">
+                        Full Name <span class="req">*</span>
+                        <span class="hint">Letters only</span>
+                    </div>
+                    <div class="input-wrap">
+                        <i class="fas fa-user input-icon"></i>
+                        <input type="text" id="fullname" name="fullname"
+                               placeholder="Enter your full name" required
+                               oninput="validateName(this)">
+                        <i class="val-icon" id="nameIcon"></i>
+                    </div>
+                    <div class="field-msg err-msg" id="nameError">
+                        <i class="fas fa-exclamation-circle"></i> Name must contain letters only — no numbers or symbols.
+                    </div>
+                </div>
+
+                <!-- Age + Gender -->
                 <div class="row">
                     <div class="col form-group">
-                        <label for="age">Age</label>
-                        <input type="number" id="age" name="age" min="18" max="120" placeholder="Enter Your Age" required>
-                    </div>
-                    <div class="col form-group">
-                        <label>Gender</label>
-                        <div class="radio-group">
-                            <label><input type="radio" name="gender" value="male" required> Male</label>
-                            <label><input type="radio" name="gender" value="female"> Female</label>
-                            <label><input type="radio" name="gender" value="transgender"> Transgender</label>
+                        <div class="form-label">
+                            Age <span class="req">*</span>
+                            <span class="hint">Must be 18+</span>
                         </div>
-                        <div id="genderError" class="error-msg">Please select a gender.</div>
+                        <div class="input-wrap">
+                            <i class="fas fa-birthday-cake input-icon"></i>
+                            <input type="number" id="age" name="age"
+                                   min="18" max="120" placeholder="Your age" required
+                                   oninput="validateAge(this)">
+                            <i class="val-icon" id="ageIcon"></i>
+                        </div>
+                        <div class="field-msg err-msg" id="ageError">
+                            <i class="fas fa-exclamation-circle"></i> You must be at least 18 years old.
+                        </div>
+                    </div>
+
+                    <div class="col form-group">
+                        <div class="form-label">Gender <span class="req">*</span></div>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" name="gender" id="male" value="male" required>
+                                <label for="male"><i class="fas fa-mars"></i> Male</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" name="gender" id="female" value="female">
+                                <label for="female"><i class="fas fa-venus"></i> Female</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" name="gender" id="other" value="other">
+                                <label for="other"><i class="fas fa-genderless"></i> Other</label>
+                            </div>
+                        </div>
+                        <div class="field-msg err-msg" id="genderError">
+                            <i class="fas fa-exclamation-circle"></i> Please select a gender.
+                        </div>
                     </div>
                 </div>
 
+                <!-- Phone -->
                 <div class="form-group">
-                    <label for="phone">Phone Number (With Country Code)</label>
+                    <div class="form-label">
+                        Phone Number <span class="req">*</span>
+                        <span class="hint">10 digits, starts with 6–9</span>
+                    </div>
                     <div class="phone-row">
                         <select name="country_code" required>
-                            <option value="+1">+1</option>
-                            <option value="+44">+44</option>
-                            <option value="+91" selected>+91</option>
-                            <option value="+61">+61</option>
-                            <option value="+81">+81</option>
+                            <option value="+1">🇺🇸 +1</option>
+                            <option value="+44">🇬🇧 +44</option>
+                            <option value="+91" selected>🇮🇳 +91</option>
+                            <option value="+61">🇦🇺 +61</option>
+                            <option value="+81">🇯🇵 +81</option>
                         </select>
-                        <input type="tel" id="phone" name="phone" maxlength="10" placeholder="Enter Your Number" required>
+                        <input type="tel" id="phone" name="phone" maxlength="10"
+                               placeholder="10-digit mobile number" required
+                               oninput="validatePhone(this)">
                     </div>
-                    <div id="phoneError" class="error-msg">Phone must start with 6-9 and be 10 digits.</div>
+                    <div class="field-msg err-msg" id="phoneError">
+                        <i class="fas fa-exclamation-circle"></i> <span id="phoneErrText">Phone must start with 6–9 and be 10 digits.</span>
+                    </div>
+                </div>
+
+                <!-- ── Travel Dates ── -->
+                <div class="form-section-title">
+                    <div class="sec-icon"><i class="fas fa-calendar-alt"></i></div>
+                    <span>Travel Dates</span>
                 </div>
 
                 <div class="row">
                     <div class="col form-group">
-                        <label for="start_date">Start Date</label>
-                        <input type="date" id="start_date" required>
-                        <div id="startDateError" class="error-msg">Please select a future date (tomorrow or later).</div>
+                        <div class="form-label">Departure Date <span class="req">*</span></div>
+                        <div class="input-wrap">
+                            <!-- plane icon removed -->
+                            <input type="date" id="start_date" style="padding-left:2.4rem" required>
+                        </div>
+                        <div class="field-msg err-msg" id="startDateError">
+                            <i class="fas fa-exclamation-circle"></i> Please select a future date.
+                        </div>
                     </div>
                     <div class="col form-group">
-                        <label for="end_date">End Date</label>
-                        <input type="date" id="end_date" required>
-                        <div id="dateError" class="error-msg">End date must be after start date.</div>
+                        <div class="form-label">Return Date <span class="req">*</span></div>
+                        <div class="input-wrap">
+                            <!-- plane icon removed -->
+                            <input type="date" id="end_date" style="padding-left:2.4rem" required>
+                        </div>
+                        <div class="field-msg err-msg" id="dateError">
+                            <i class="fas fa-exclamation-circle"></i> Return must be after departure.
+                        </div>
                     </div>
                 </div>
 
-                <fieldset>
-                    <legend>Address Details</legend>
+                <!-- ── Address ── -->
+                <div class="form-section-title">
+                    <div class="sec-icon"><i class="fas fa-map-marker-alt"></i></div>
+                    <span>Address Details</span>
+                </div>
 
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="same_address" onchange="copyAddress()">
-                        <span>Current address is same as Permanent</span>
-                    </div>
+                <label class="checkbox-wrap" for="same_address">
+                    <input type="checkbox" id="same_address" onchange="copyAddress()">
+                    <span>My current address is same as permanent address</span>
+                </label>
 
-                    <div class="form-group">
-                        <label for="permanent_address">Permanent Address</label>
-                        <textarea id="permanent_address" name="permanent_address" placeholder="Enter Address" required></textarea>
-                    </div>
+                <div class="form-group">
+                    <div class="form-label">Permanent Address <span class="req">*</span></div>
+                    <textarea id="permanent_address" name="permanent_address"
+                              placeholder="House no., Street, City, State, PIN" required></textarea>
+                </div>
+                <div class="form-group">
+                    <div class="form-label">Current Address <span class="req">*</span></div>
+                    <textarea id="current_address" name="current_address"
+                              placeholder="Current residential address" required></textarea>
+                </div>
 
-                    <div class="form-group">
-                        <label for="current_address">Current Address</label>
-                        <textarea id="current_address" name="current_address" required></textarea>
-                    </div>
-                </fieldset>
+                <!-- ── Identity Proof ── -->
+                <div class="form-section-title">
+                    <div class="sec-icon"><i class="fas fa-id-card"></i></div>
+                    <span>Identity Proof</span>
+                </div>
 
-                <fieldset>
-                    <legend>Identity Proof (Select One)</legend>
-                    <div class="radio-group" style="margin-bottom:1rem">
-                        <label><input type="radio" name="id_card" value="adhar" checked> Aadhar Card</label>
-                        <label><input type="radio" name="id_card" value="pan"> PAN Card</label>
-                        <label><input type="radio" name="id_card" value="voter"> Voter ID</label>
+                <div class="form-group">
+                    <div class="form-label">
+                        Select ID Type <span class="req">*</span>
+                        <span class="hint" id="idFormatHint">12-digit number</span>
                     </div>
-                    <div class="form-group">
-                        <label for="id_number">ID Number</label>
-                        <input type="text" id="id_number" name="id_number" placeholder="Enter ID Number here" required>
+                    <div class="id-type-grid">
+                        <div class="id-option">
+                            <input type="radio" name="id_card" id="adhar" value="adhar" checked
+                                   onchange="updateIdFormat()">
+                            <label for="adhar"><i class="fas fa-fingerprint"></i> Aadhar Card</label>
+                        </div>
+                        <div class="id-option">
+                            <input type="radio" name="id_card" id="pan" value="pan"
+                                   onchange="updateIdFormat()">
+                            <label for="pan"><i class="fas fa-credit-card"></i> PAN Card</label>
+                        </div>
+                        <div class="id-option">
+                            <input type="radio" name="id_card" id="voter" value="voter"
+                                   onchange="updateIdFormat()">
+                            <label for="voter"><i class="fas fa-vote-yea"></i> Voter ID</label>
+                        </div>
                     </div>
-                </fieldset>
-
-                <div class="row">
-                    <div class="col form-group">
-                        <label for="adults">Number of Adults</label>
-                        <input type="number" id="adults" name="adults" min="1" value="1" required>
+                    <div class="input-wrap">
+                        <i class="fas fa-hashtag input-icon"></i>
+                        <input type="text" id="id_number" name="id_number"
+                               placeholder="Enter 12-digit Aadhar number" required
+                               maxlength="12"
+                               oninput="validateIdNumber(this)">
+                        <i class="val-icon" id="idIcon"></i>
                     </div>
-                    <div class="col form-group">
-                        <label for="children">Number of Children</label>
-                        <input type="number" id="children" name="children" min="0" value="0">
+                    <div class="field-msg err-msg" id="idError">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span id="idErrText">Aadhar must be exactly 12 digits.</span>
+                    </div>
+                    <div class="field-msg tip-msg show" id="idTip">
+                        <i class="fas fa-info-circle"></i>
+                        <span id="idTipText">Enter your 12-digit Aadhar number (numbers only).</span>
                     </div>
                 </div>
 
-                <button type="button" class="submit-btn" onclick="validateAndProceed()">Proceed to Payment →</button>
+                <!-- ── Travellers ── -->
+                <div class="form-section-title">
+                    <div class="sec-icon"><i class="fas fa-users"></i></div>
+                    <span>Travellers</span>
+                </div>
+
+                <div class="counter-row">
+                    <div class="counter-field">
+                        <div class="form-label">Adults <span class="req">*</span></div>
+                        <div class="counter-wrap">
+                            <button type="button" class="counter-btn" onclick="changeCount('adults',-1)">−</button>
+                            <input type="number" id="adults" name="adults" min="1" value="1" required>
+                            <button type="button" class="counter-btn" onclick="changeCount('adults',1)">+</button>
+                        </div>
+                    </div>
+                    <div class="counter-field">
+                        <div class="form-label">Children</div>
+                        <div class="counter-wrap">
+                            <button type="button" class="counter-btn" onclick="changeCount('children',-1)">−</button>
+                            <input type="number" id="children" name="children" min="0" value="0">
+                            <button type="button" class="counter-btn" onclick="changeCount('children',1)">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" class="submit-btn" onclick="validateAndProceed()">
+                    <span>Proceed to Payment</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
             </form>
         </div>
 
         <div class="home-link">
-            <a href="{% url 'index' %}">← Back to Home</a>
+            <a href="{% url 'index' %}"><i class="fas fa-arrow-left"></i> Back to Home</a>
         </div>
     </div>
-</section>
+
+    <!-- ── Sidebar ── -->
+    <aside class="booking-sidebar">
+
+        <div class="sidebar-card">
+            <div class="sidebar-card-header">
+                <i class="fas fa-shield-alt"></i>
+                <h4>Why Book With Us</h4>
+            </div>
+            <div class="sidebar-card-body">
+                <div class="why-list">
+                    <div class="why-item">
+                        <i class="fas fa-lock"></i>
+                        <div><div class="why-title">Secure Payments</div><div class="why-desc">SSL encrypted & PCI compliant checkout.</div></div>
+                    </div>
+                    <div class="why-item">
+                        <i class="fas fa-undo-alt"></i>
+                        <div><div class="why-title">Free Cancellation</div><div class="why-desc">Cancel 48 hrs before for a full refund.</div></div>
+                    </div>
+                    <div class="why-item">
+                        <i class="fas fa-headset"></i>
+                        <div><div class="why-title">24/7 Support</div><div class="why-desc">Travel experts always a call away.</div></div>
+                    </div>
+                    <div class="why-item">
+                        <i class="fas fa-tags"></i>
+                        <div><div class="why-title">Best Price Promise</div><div class="why-desc">Find it cheaper? We match + 5% off.</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-card">
+            <div class="sidebar-card-header">
+                <i class="fas fa-id-badge"></i>
+                <h4>Accepted ID Proofs</h4>
+            </div>
+            <div class="sidebar-card-body">
+                <div class="id-chips">
+                    <div class="id-chip"><i class="fas fa-check"></i> Aadhar Card</div>
+                    <div class="id-chip"><i class="fas fa-check"></i> PAN Card</div>
+                    <div class="id-chip"><i class="fas fa-check"></i> Voter ID</div>
+                    <div class="id-chip"><i class="fas fa-check"></i> Passport</div>
+                    <div class="id-chip"><i class="fas fa-check"></i> Driving Licence</div>
+                </div>
+                <p style="font-size:.73rem;color:var(--muted);margin-top:.8rem;line-height:1.6;">
+                    Original ID required at travel time. Carry a physical copy.
+                </p>
+            </div>
+        </div>
+
+        <div class="sidebar-card help-card">
+            <div class="sidebar-card-body">
+                <h5>Need help booking?</h5>
+                <p>Our experts are available Mon–Sat, 9am–7pm IST.</p>
+                <div class="help-contact">
+                    <a href="tel:+919876543210"><i class="fas fa-phone"></i> +91 98765 43210</a>
+                    <a href="mailto:support@wanderlust.com"><i class="fas fa-envelope"></i> support@wanderlust.com</a>
+                    <a href="#"><i class="fab fa-whatsapp"></i> Chat on WhatsApp</a>
+                </div>
+            </div>
+        </div>
+
+    </aside>
+</div>
 
 <!-- Footer -->
 <footer class="footer">
@@ -413,216 +845,286 @@
 </footer>
 
 <script>
-    // Set minimum date to tomorrow for date inputs
+    /* ── ID format config per card type ── */
+    const idConfig = {
+        adhar: {
+            placeholder: 'Enter 12-digit Aadhar number',
+            tip:         'Enter your 12-digit Aadhar number (numbers only).',
+            hint:        '12-digit number',
+            numbersOnly: true,
+            maxLen:      12,
+            validate(v) {
+                return /^\d{12}$/.test(v)
+                    ? null
+                    : 'Aadhar must be exactly 12 digits (numbers only).';
+            }
+        },
+        pan: {
+            placeholder: 'E.g. ABCDE1234F',
+            tip:         'PAN format: 5 letters + 4 digits + 1 letter (e.g. ABCDE1234F).',
+            hint:        'Format: ABCDE1234F',
+            numbersOnly: false,
+            maxLen:      10,
+            validate(v) {
+                return /^[A-Z]{5}[0-9]{4}[A-Z]$/.test(v.toUpperCase())
+                    ? null
+                    : 'PAN must be in format ABCDE1234F (5 letters, 4 digits, 1 letter).';
+            }
+        },
+        voter: {
+            placeholder: 'E.g. ABC1234567',
+            tip:         'Voter ID: 3 letters followed by 7 digits.',
+            hint:        'Format: ABC1234567',
+            numbersOnly: false,
+            maxLen:      10,
+            validate(v) {
+                return /^[A-Z]{3}[0-9]{7}$/.test(v.toUpperCase())
+                    ? null
+                    : 'Voter ID must be 3 letters followed by 7 digits.';
+            }
+        }
+    };
+
+    function getSelectedId() {
+        return document.querySelector('input[name="id_card"]:checked')?.value || 'adhar';
+    }
+
+    /* ── Update ID field when type changes ── */
+    function updateIdFormat() {
+        const cfg      = idConfig[getSelectedId()];
+        const input    = document.getElementById('id_number');
+        const hint     = document.getElementById('idFormatHint');
+        const tip      = document.getElementById('idTipText');
+        const err      = document.getElementById('idError');
+        const tipEl    = document.getElementById('idTip');
+
+        input.value       = '';
+        input.placeholder = cfg.placeholder;
+        input.maxLength   = cfg.maxLen;
+        hint.textContent  = cfg.hint;
+        tip.textContent   = cfg.tip;
+        err.classList.remove('show');
+        tipEl.classList.add('show');
+        input.classList.remove('valid','invalid');
+        setValIcon('idIcon', null);
+    }
+
+    /* ── Validate ID number ── */
+    function validateIdNumber(input) {
+        const cfg = idConfig[getSelectedId()];
+        let val   = input.value;
+
+        /* Allow only digits for Aadhar */
+        if (cfg.numbersOnly) {
+            val = val.replace(/\D/g, '');
+            input.value = val;
+        } else {
+            val = val.toUpperCase();
+            input.value = val;
+        }
+
+        const err    = cfg.validate(val);
+        const errEl  = document.getElementById('idError');
+        const tipEl  = document.getElementById('idTip');
+        const errTxt = document.getElementById('idErrText');
+
+        if (val.length === 0) {
+            errEl.classList.remove('show'); tipEl.classList.add('show');
+            input.classList.remove('valid','invalid'); setValIcon('idIcon', null);
+        } else if (err) {
+            errTxt.textContent = err;
+            errEl.classList.add('show'); tipEl.classList.remove('show');
+            input.classList.add('invalid'); input.classList.remove('valid');
+            setValIcon('idIcon', false);
+        } else {
+            errEl.classList.remove('show'); tipEl.classList.remove('show');
+            input.classList.add('valid'); input.classList.remove('invalid');
+            setValIcon('idIcon', true);
+        }
+    }
+
+    /* ── Name validation — letters + spaces only ── */
+    function validateName(input) {
+        const val     = input.value;
+        const cleaned = val.replace(/[^a-zA-Z\s]/g, '');
+        if (val !== cleaned) input.value = cleaned; /* strip invalid chars live */
+
+        const errEl = document.getElementById('nameError');
+        const icon  = document.getElementById('nameIcon');
+
+        if (cleaned.trim().length === 0) {
+            errEl.classList.remove('show');
+            input.classList.remove('valid','invalid');
+            setValIcon('nameIcon', null);
+        } else if (cleaned.trim().length < 2) {
+            errEl.classList.add('show');
+            input.classList.add('invalid'); input.classList.remove('valid');
+            setValIcon('nameIcon', false);
+        } else {
+            errEl.classList.remove('show');
+            input.classList.add('valid'); input.classList.remove('invalid');
+            setValIcon('nameIcon', true);
+        }
+    }
+
+    /* ── Age validation — must be 18+ ── */
+    function validateAge(input) {
+        /* Allow only digits */
+        input.value = input.value.replace(/\D/g, '');
+        const age   = parseInt(input.value);
+        const errEl = document.getElementById('ageError');
+
+        if (!input.value) {
+            errEl.classList.remove('show');
+            input.classList.remove('valid','invalid');
+            setValIcon('ageIcon', null);
+            return;
+        }
+        if (isNaN(age) || age < 18) {
+            errEl.classList.add('show');
+            input.classList.add('invalid'); input.classList.remove('valid');
+            setValIcon('ageIcon', false);
+        } else if (age > 120) {
+            errEl.classList.add('show');
+            document.getElementById('ageError').querySelector('span') &&
+                (document.getElementById('ageError').lastChild.textContent = ' Please enter a valid age.');
+            input.classList.add('invalid'); input.classList.remove('valid');
+            setValIcon('ageIcon', false);
+        } else {
+            errEl.classList.remove('show');
+            input.classList.add('valid'); input.classList.remove('invalid');
+            setValIcon('ageIcon', true);
+        }
+    }
+
+    /* ── Phone validation ── */
+    const phoneRegex = /^[6-9]\d{9}$/;
+    function validatePhone(input) {
+        input.value = input.value.replace(/\D/g, '');
+        const errEl = document.getElementById('phoneError');
+        const errTxt = document.getElementById('phoneErrText');
+        const v = input.value;
+
+        if (!v) { errEl.classList.remove('show'); return; }
+        if (v[0] < '6') {
+            errTxt.textContent = 'Phone must start with 6, 7, 8, or 9.';
+            errEl.classList.add('show');
+        } else if (v.length < 10) {
+            errTxt.textContent = 'Please enter all 10 digits.';
+            errEl.classList.add('show');
+        } else {
+            errEl.classList.remove('show');
+        }
+    }
+
+    /* ── Validation icon helper ── */
+    function setValIcon(id, ok) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.className = 'val-icon';
+        if (ok === true)  { el.classList.add('show','ok','fas','fa-check-circle'); }
+        if (ok === false) { el.classList.add('show','err','fas','fa-times-circle'); }
+    }
+
+    /* ── Min date ── */
     function setMinDate() {
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
-        const minDate = tomorrow.toISOString().slice(0, 10); // Format: YYYY-MM-DD
-
-        const startDateInput = document.getElementById('start_date');
-        const endDateInput = document.getElementById('end_date');
-
-        startDateInput.min = minDate;
-        endDateInput.min = minDate;
+        const min = tomorrow.toISOString().slice(0,10);
+        document.getElementById('start_date').min = min;
+        document.getElementById('end_date').min   = min;
     }
-
-    // Set minimum dates when page loads
     document.addEventListener('DOMContentLoaded', setMinDate);
 
+    /* ── Date events ── */
+    const startDate      = document.getElementById('start_date');
+    const endDate        = document.getElementById('end_date');
+    const dateError      = document.getElementById('dateError');
+    const startDateError = document.getElementById('startDateError');
+
+    startDate.addEventListener('change', function () {
+        const today = new Date(); today.setHours(0,0,0,0);
+        if (new Date(this.value) <= today) {
+            startDateError.classList.add('show');
+        } else {
+            startDateError.classList.remove('show');
+        }
+        endDate.min = this.value;
+        if (endDate.value && new Date(endDate.value) <= new Date(this.value)) {
+            endDate.value = ''; dateError.classList.remove('show');
+        }
+    });
+
+    endDate.addEventListener('change', function () {
+        if (this.value && startDate.value && new Date(this.value) <= new Date(startDate.value)) {
+            dateError.classList.add('show');
+        } else {
+            dateError.classList.remove('show');
+        }
+    });
+
+    /* ── Copy address ── */
     function copyAddress() {
-        const checkbox = document.getElementById('same_address');
-        const permAddress = document.getElementById('permanent_address');
-        const currAddress = document.getElementById('current_address');
-        if (checkbox.checked) {
-            currAddress.value = permAddress.value;
-            currAddress.disabled = true;
+        const cb   = document.getElementById('same_address');
+        const curr = document.getElementById('current_address');
+        if (cb.checked) {
+            curr.value    = document.getElementById('permanent_address').value;
+            curr.disabled = true;
         } else {
-            currAddress.value = '';
-            currAddress.disabled = false;
+            curr.value    = '';
+            curr.disabled = false;
         }
     }
 
-    const phoneInput = document.getElementById("phone");
-    const phoneError = document.getElementById("phoneError");
-    const phoneRegex = /^[6-9]\d{9}$/;
+    /* ── Counter ── */
+    function changeCount(id, delta) {
+        const inp = document.getElementById(id);
+        inp.value = Math.max(parseInt(inp.min)||0, (parseInt(inp.value)||0) + delta);
+    }
 
-    phoneInput.addEventListener("input", function() {
-        this.value = this.value.replace(/[^0-9]/g, '');
-        
-        // Check if first digit is not 6-9 (only if at least 1 digit is entered)
-        if (this.value.length > 0 && this.value[0] < '6') {
-            phoneError.style.display = "block";
-            phoneError.textContent = "Phone number must start with 6, 7, 8, or 9.";
-            return;
-        }
-        
-        // Check if partially entered
-        if (this.value.length > 0 && this.value.length < 10) {
-            phoneError.style.display = "block";
-            phoneError.textContent = "Please enter a valid 10-digit number.";
-        } else if (this.value.length === 10) {
-            phoneError.style.display = "none";
-        } else if (this.value.length === 0) {
-            phoneError.style.display = "none";
-        }
-    });
-
-    const startDate = document.getElementById("start_date");
-    const endDate = document.getElementById("end_date");
-    const dateError = document.getElementById("dateError");
-    const startDateError = document.getElementById("startDateError");
-
-    // Update end date minimum when start date changes
-    startDate.addEventListener('change', function() {
-        if (this.value) {
-            // Get today's date
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const selectedDate = new Date(this.value);
-            
-            // Check if selected date is today or before
-            if (selectedDate <= today) {
-                startDateError.style.display = "block";
-                startDateError.textContent = "Please select a future date (tomorrow or later).";
-            } else {
-                startDateError.style.display = "none";
-            }
-            
-            endDate.min = this.value;
-            // If end date is now before start date, clear it
-            if (endDate.value && new Date(endDate.value) <= new Date(this.value)) {
-                endDate.value = '';
-                dateError.style.display = "none";
-            }
-        }
-    });
-
-    // Validate end date when it changes
-    endDate.addEventListener('change', function() {
-        if (this.value && startDate.value) {
-            // Only show error if end date is not after start date
-            if (new Date(this.value) <= new Date(startDate.value)) {
-                dateError.style.display = "block";
-                dateError.textContent = "End date must be after start date.";
-            } else {
-                dateError.style.display = "none";
-            }
-        } else {
-            // Hide error if end date is empty
-            dateError.style.display = "none";
-        }
-    });;
-
-    const genderError = document.getElementById("genderError");
-    const genderInputs = document.querySelectorAll('input[name="gender"]');
-
-    const form = document.getElementById("bookingForm");
-    form.addEventListener("submit", function(e) {
-        let valid = true;
-
-        // Validate gender selection
-        const genderSelected = Array.from(genderInputs).some(radio => radio.checked);
-        if (!genderSelected) {
-            genderError.style.display = "block";
-            valid = false;
-        } else {
-            genderError.style.display = "none";
-        }
-
-        // Validate phone number
-        if (!phoneRegex.test(phoneInput.value)) {
-            phoneError.style.display = "block";
-            phoneError.textContent = "Phone must start with 6-9 and be 10 digits.";
-            valid = false;
-        } else {
-            phoneError.style.display = "none";
-        }
-
-        // Validate dates
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const selectedStartDate = new Date(startDate.value);
-        
-        if (selectedStartDate <= today) {
-            startDateError.style.display = "block";
-            startDateError.textContent = "Please select a future date (tomorrow or later).";
-            valid = false;
-        } else {
-            startDateError.style.display = "none";
-        }
-
-        if (endDate.value && new Date(endDate.value) <= new Date(startDate.value)) {
-            dateError.style.display = "block";
-            dateError.textContent = "End date must be after start date.";
-            valid = false;
-        } else {
-            dateError.style.display = "none";
-        }
-
-        if (!valid) {
-            e.preventDefault();
-        } else {
-            alert("🎉 Booking Successful!");
-        }
-    });
-
-    // Validate and proceed to payment
+    /* ── Final validation + proceed ── */
     function validateAndProceed() {
-        let valid = true;
+        const fullname  = document.getElementById('fullname').value.trim();
+        const age       = document.getElementById('age').value.trim();
+        const phone     = document.getElementById('phone').value.trim();
+        const startVal  = document.getElementById('start_date').value;
+        const endVal    = document.getElementById('end_date').value;
+        const permAddr  = document.getElementById('permanent_address').value.trim();
+        const currAddr  = document.getElementById('current_address').value.trim();
+        const idNum     = document.getElementById('id_number').value.trim();
+        const adults    = document.getElementById('adults').value.trim();
+        const genderSel = Array.from(document.querySelectorAll('input[name="gender"]')).some(r=>r.checked);
+        const idType    = getSelectedId();
 
-        // Check all required fields are filled
-        const fullname = document.getElementById('fullname').value.trim();
-        const age = document.getElementById('age').value.trim();
-        const phone = document.getElementById('phone').value.trim();
-        const startDateVal = document.getElementById('start_date').value;
-        const endDateVal = document.getElementById('end_date').value;
-        const permanentAddress = document.getElementById('permanent_address').value.trim();
-        const currentAddress = document.getElementById('current_address').value.trim();
-        const idNumber = document.getElementById('id_number').value.trim();
-        const adults = document.getElementById('adults').value.trim();
-
-        // Validate basic fields
-        if (!fullname || !age || !phone || !startDateVal || !endDateVal || !permanentAddress || !currentAddress || !idNumber || !adults) {
-            alert('❌ Please fill in all required fields.');
-            return false;
+        if (!fullname || !age || !phone || !startVal || !endVal || !permAddr || !currAddr || !idNum || !adults) {
+            alert('❌ Please fill in all required fields.'); return false;
         }
-
-        // Validate gender selection
-        const genderSelected = Array.from(genderInputs).some(radio => radio.checked);
-        if (!genderSelected) {
-            genderError.style.display = "block";
-            alert('❌ Please select a gender.');
-            return false;
+        if (!/^[a-zA-Z\s]+$/.test(fullname)) {
+            alert('❌ Name must contain letters only.'); return false;
         }
-
-        // Validate phone number
+        if (parseInt(age) < 18) {
+            alert('❌ You must be at least 18 years old to book.'); return false;
+        }
+        if (!genderSel) {
+            document.getElementById('genderError').classList.add('show');
+            alert('❌ Please select a gender.'); return false;
+        }
         if (!phoneRegex.test(phone)) {
-            phoneError.style.display = "block";
-            alert('❌ Please enter a valid 10-digit phone number starting with 6-9.');
-            return false;
+            alert('❌ Please enter a valid 10-digit phone number starting with 6–9.'); return false;
+        }
+        const idErr = idConfig[idType].validate(idNum);
+        if (idErr) { alert('❌ ' + idErr); return false; }
+
+        const today = new Date(); today.setHours(0,0,0,0);
+        if (new Date(startVal) <= today) {
+            alert('❌ Please select a future departure date.'); return false;
+        }
+        if (new Date(endVal) <= new Date(startVal)) {
+            alert('❌ Return date must be after departure date.'); return false;
         }
 
-        // Validate dates
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const selectedStartDate = new Date(startDateVal);
-        const selectedEndDate = new Date(endDateVal);
-        
-        if (selectedStartDate <= today) {
-            alert('❌ Please select a future start date (tomorrow or later).');
-            return false;
-        }
-
-        if (selectedEndDate <= selectedStartDate) {
-            alert('❌ End date must be after start date.');
-            return false;
-        }
-
-        // If all validations pass, redirect to payment page
         window.location.href = '{% url "payment" %}';
-        return true;
     }
-
 </script>
 </body>
 </html>

@@ -28,4 +28,6 @@ urlpatterns = [
     path('destination/', views.destination, name='destination'),
     path('packages/', views.packages, name='packages'),
     path('payment/', views.payment, name='payment'),
+    path('booking/confirmation/<str:txn_id>/', views.booking_confirmation, name='booking_confirmation'),
+    path('api/create-booking/', views.create_booking, name='create_booking'),
 ]

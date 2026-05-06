@@ -3,7 +3,10 @@ from django.contrib.auth import authenticate, login as auth_login, logout as aut
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.shortcuts import redirect, render
-
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+import json
+from .models import Booking
 # Package pricing mapping
 PACKAGES = {
     'Maldives Overwater Escape': {'price': 185000, 'currency': '₹'},
@@ -127,3 +130,49 @@ def destination(request):
 
 def packages(request):
     return render(request, 'core/packages.html')
+
+@login_required(login_url='login')
+def booking_confirmation(request, txn_id):
+    """Display booking confirmation details"""
+    # Try to get existing booking
+    booking = Booking.objects.filter(transaction_id=txn_id, user=request.user).first()
+    
+    if not booking:
+        messages.error(request, 'Booking not found.')
+        return redirect('packages')
+    
+    context = {
+        'booking': booking,
+    }
+    return render(request, 'core/booking_confirmation.html', context)
+
+@login_required(login_url='login')
+@require_http_methods(["POST"])
+def create_booking(request):
+    """API endpoint to create a booking after successful payment"""
+    try:
+        data = json.loads(request.body)
+        
+        selected_package = request.session.get('selected_package')
+        selected_price = request.session.get('selected_package_price')
+        
+        if not selected_package or not selected_price:
+            return JsonResponse({'success': False, 'message': 'Package not found in session'}, status=400)
+        
+        # Create booking
+        booking = Booking.objects.create(
+            user=request.user,
+            package_name=selected_package,
+            amount=selected_price,
+            transaction_id=data.get('txn_id'),
+            payment_method=data.get('method', 'Online'),
+            status='confirmed'
+        )
+        
+        # Clear session
+        request.session.pop('selected_package', None)
+        request.session.pop('selected_package_price', None)
+        
+        return JsonResponse({'success': True, 'booking_id': booking.id}, status=200)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)

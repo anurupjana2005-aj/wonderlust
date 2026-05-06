@@ -6,39 +6,80 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Payment Page</title>
   <link rel="stylesheet" href="{% static 'payment_page.css' %}" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
   <script>
-    // Set payment amount from Django context with proper escaping
     const PAYMENT_AMOUNT = parseInt("{{ package_price|default:2499|escapejs }}") || 2499;
     const CURRENCY = "{{ currency|default:'₹'|escapejs }}" || "₹";
     const PACKAGE_NAME = "{{ selected_package|default:'Package'|escapejs }}" || "Package";
-    
+    const SESSION_DURATION = 600; // 10 minutes
+
     function formatAmount(amount) {
       return new Intl.NumberFormat('en-IN').format(amount);
     }
-    
-    function getFormattedAmount() {
-      return CURRENCY + ' ' + formatAmount(PAYMENT_AMOUNT);
+    function getFormattedAmount(amt) {
+      return CURRENCY + ' ' + formatAmount(amt ?? PAYMENT_AMOUNT);
     }
   </script>
 </head>
 <body>
 
+  <!-- ── Session Timer Bar ── -->
+  <div class="timer-bar" id="timerBar">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+      <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+    </svg>
+    <span>Session expires in <strong id="timerDisplay">10:00</strong></span>
+  </div>
+
   <div class="pay-wrap">
 
     <!-- Header -->
     <div class="pay-header">
-      <div class="amount" id="headerAmount">₹2,499.00</div>
-      <div class="merchant" id="merchantInfo">Payment for Wanderlust Travels</div>
+      <div class="amount" id="headerAmount">₹2,499</div>
+      <div class="merchant">Payment for <span>Wanderlust Travels</span></div>
     </div>
 
     <!-- Package Info -->
-    <div style="background: #f0ede5; padding: 1rem; margin: 1rem; border-radius: 4px; border-left: 4px solid #c0522a;">
-      <div style="font-size: 0.75rem; color: #7a6e62; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.3rem;">Package Selected</div>
-      <div style="font-size: 1.1rem; color: #1a1410; font-weight: 500;" id="packageInfo">{{ selected_package }}</div>
+    <div class="pkg-info">
+      <div class="pkg-label">Package Selected</div>
+      <div class="pkg-name" id="packageInfo">{{ selected_package }}</div>
+    </div>
+
+    <!-- Promo Code -->
+    <div class="promo-wrap" id="promoWrap">
+      <button class="promo-toggle" onclick="togglePromo()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+          <line x1="7" y1="7" x2="7.01" y2="7"/>
+        </svg>
+        Have a promo code?
+        <span id="promoChevron">▾</span>
+      </button>
+      <div class="promo-field" id="promoField">
+        <input type="text" id="promoInput" placeholder="Enter promo code" oninput="this.value=this.value.toUpperCase()" />
+        <button class="promo-apply-btn" onclick="applyPromo()">Apply</button>
+      </div>
+      <div id="promoStatus"></div>
+    </div>
+
+    <!-- Price Summary -->
+    <div class="price-summary" id="priceSummary" style="display:none;">
+      <div class="price-row">
+        <span>Original Amount</span>
+        <span id="origAmt">₹2,499</span>
+      </div>
+      <div class="price-row discount">
+        <span id="discountLabel">Discount</span>
+        <span id="discountAmt">-₹0</span>
+      </div>
+      <div class="price-row total">
+        <span>Total Payable</span>
+        <span id="finalAmt">₹2,499</span>
+      </div>
     </div>
 
     <!-- Tabs -->
-    <div class="tabs" id="tabs">
+    <div class="tabs">
       <button class="tab active" onclick="switchTab('upi')">UPI</button>
       <button class="tab" onclick="switchTab('card')">Cards</button>
       <button class="tab" onclick="switchTab('netbank')">Net Banking</button>
@@ -50,48 +91,32 @@
       <div class="card-panel">
         <div class="label">Pay via UPI app</div>
         <div class="upi-apps">
-
           <div class="upi-app" onclick="selectApp(this, 'gpay')">
             <div class="icon" style="background:#E8F0FE;">
-              <svg width="22" height="22" viewBox="0 0 40 40" fill="none">
-                <text y="28" x="2" font-size="26" fill="#4285F4">G</text>
-              </svg>
+              <svg width="22" height="22" viewBox="0 0 40 40" fill="none"><text y="28" x="2" font-size="26" fill="#4285F4">G</text></svg>
             </div>
             <span class="name">GPay</span>
           </div>
-
           <div class="upi-app" onclick="selectApp(this, 'phonepe')">
             <div class="icon" style="background:#EDE7F6;">
-              <svg width="22" height="22" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10" fill="#5C35A0"/>
-                <text x="7" y="17" font-size="12" fill="#fff">Pe</text>
-              </svg>
+              <svg width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#5C35A0"/><text x="7" y="17" font-size="12" fill="#fff">Pe</text></svg>
             </div>
             <span class="name">PhonePe</span>
           </div>
-
           <div class="upi-app" onclick="selectApp(this, 'paytm')">
             <div class="icon" style="background:#E3F2FD;">
-              <svg width="22" height="22" viewBox="0 0 24 24">
-                <text x="2" y="17" font-size="11" fill="#00B9F1" font-weight="700">Ptm</text>
-              </svg>
+              <svg width="22" height="22" viewBox="0 0 24 24"><text x="2" y="17" font-size="11" fill="#00B9F1" font-weight="700">Ptm</text></svg>
             </div>
             <span class="name">Paytm</span>
           </div>
-
           <div class="upi-app" onclick="selectApp(this, 'bhim')">
             <div class="icon" style="background:#E8F5E9;">
-              <svg width="22" height="22" viewBox="0 0 24 24">
-                <text x="1" y="17" font-size="11" fill="#1B5E20" font-weight="700">BHIM</text>
-              </svg>
+              <svg width="22" height="22" viewBox="0 0 24 24"><text x="1" y="17" font-size="11" fill="#1B5E20" font-weight="700">BHIM</text></svg>
             </div>
             <span class="name">BHIM</span>
           </div>
-
         </div>
-
         <div class="divider">or enter UPI ID</div>
-
         <div class="field" style="margin-top: 10px;">
           <label>UPI ID / VPA</label>
           <div class="upi-row">
@@ -101,13 +126,9 @@
         </div>
         <div id="upiStatus"></div>
       </div>
-
       <button class="pay-btn green" id="upiPayBtn" onclick="pay('UPI', this)">Pay ₹2,499</button>
       <div class="security-note">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="11" width="18" height="11" rx="2"/>
-          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-        </svg>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         100% secure payment
       </div>
     </div>
@@ -115,7 +136,6 @@
     <!-- ── Cards Section ── -->
     <div id="card" class="section">
       <div class="card-panel">
-
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
           <div class="label" style="margin:0;">Credit / Debit Card</div>
           <div class="card-icons">
@@ -124,17 +144,14 @@
             <span class="card-icon" style="color:#F79E1B;">RuPay</span>
           </div>
         </div>
-
         <div class="field">
           <label>Card number</label>
           <input type="text" placeholder="0000  0000  0000  0000" maxlength="19" id="cardNum" oninput="formatCard(this)" />
         </div>
-
         <div class="field">
           <label>Cardholder name</label>
           <input type="text" placeholder="Name on card" />
         </div>
-
         <div class="field-row">
           <div class="field">
             <label>Expiry</label>
@@ -145,15 +162,10 @@
             <input type="password" placeholder="•••" maxlength="4" />
           </div>
         </div>
-
       </div>
-
       <button class="pay-btn dark" id="cardPayBtn" onclick="pay('Card', this)">Pay ₹2,499 securely</button>
       <div class="security-note">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="11" width="18" height="11" rx="2"/>
-          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-        </svg>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         3D Secure · SSL encrypted
       </div>
     </div>
@@ -163,65 +175,36 @@
       <div class="card-panel">
         <div class="label">Popular banks</div>
         <div class="bank-list">
-
           <div class="bank-item" onclick="selectBank(this)">
             <div class="bank-icon" style="background:#0033A0;">SBI</div>
-            <div>
-              <div class="bank-name">State Bank</div>
-              <div class="bank-sub">of India</div>
-            </div>
+            <div><div class="bank-name">State Bank</div><div class="bank-sub">of India</div></div>
           </div>
-
           <div class="bank-item" onclick="selectBank(this)">
             <div class="bank-icon" style="background:#E50000;">HDFC</div>
-            <div>
-              <div class="bank-name">HDFC Bank</div>
-              <div class="bank-sub">Net banking</div>
-            </div>
+            <div><div class="bank-name">HDFC Bank</div><div class="bank-sub">Net banking</div></div>
           </div>
-
           <div class="bank-item" onclick="selectBank(this)">
             <div class="bank-icon" style="background:#FF6600;">ICICI</div>
-            <div>
-              <div class="bank-name">ICICI Bank</div>
-              <div class="bank-sub">Net banking</div>
-            </div>
+            <div><div class="bank-name">ICICI Bank</div><div class="bank-sub">Net banking</div></div>
           </div>
-
           <div class="bank-item" onclick="selectBank(this)">
             <div class="bank-icon" style="background:#29408E;">Axis</div>
-            <div>
-              <div class="bank-name">Axis Bank</div>
-              <div class="bank-sub">Net banking</div>
-            </div>
+            <div><div class="bank-name">Axis Bank</div><div class="bank-sub">Net banking</div></div>
           </div>
-
           <div class="bank-item" onclick="selectBank(this)">
             <div class="bank-icon" style="background:#005A8A;">Kotak</div>
-            <div>
-              <div class="bank-name">Kotak</div>
-              <div class="bank-sub">Mahindra Bank</div>
-            </div>
+            <div><div class="bank-name">Kotak</div><div class="bank-sub">Mahindra Bank</div></div>
           </div>
-
           <div class="bank-item" onclick="selectBank(this)">
             <div class="bank-icon" style="background:#4CAF50;">BOB</div>
-            <div>
-              <div class="bank-name">Bank of Baroda</div>
-              <div class="bank-sub">Net banking</div>
-            </div>
+            <div><div class="bank-name">Bank of Baroda</div><div class="bank-sub">Net banking</div></div>
           </div>
-
         </div>
         <div class="more-banks" onclick="alert('All banks would appear here.')">+ View all banks ↗</div>
       </div>
-
       <button class="pay-btn blue" id="netbankPayBtn" onclick="pay('Net Banking', this)">Proceed to Bank</button>
       <div class="security-note">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="11" width="18" height="11" rx="2"/>
-          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-        </svg>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         Redirects to your bank's secure portal
       </div>
     </div>
@@ -239,66 +222,98 @@
           <div class="wa-title">Pay via WhatsApp Pay</div>
           <div class="wa-sub">Fast, secure UPI payments directly from WhatsApp</div>
         </div>
-
         <div class="wa-steps">
-          <div class="wa-step">
-            <div class="wa-step-num">1</div>
-            <div class="wa-step-text">Tap the button below to open WhatsApp Pay</div>
-          </div>
-          <div class="wa-step">
-            <div class="wa-step-num">2</div>
-            <div class="wa-step-text">Confirm the payment amount of ₹2,499</div>
-          </div>
-          <div class="wa-step">
-            <div class="wa-step-num">3</div>
-            <div class="wa-step-text">Authorize with your UPI PIN to complete payment</div>
-          </div>
+          <div class="wa-step"><div class="wa-step-num">1</div><div class="wa-step-text">Tap the button below to open WhatsApp Pay</div></div>
+          <div class="wa-step"><div class="wa-step-num">2</div><div class="wa-step-text" id="waAmountStep">Confirm the payment amount of ₹2,499</div></div>
+          <div class="wa-step"><div class="wa-step-num">3</div><div class="wa-step-text">Authorize with your UPI PIN to complete payment</div></div>
         </div>
       </div>
-
       <button class="pay-btn whatsapp" onclick="pay('WhatsApp Pay', this)">
-        <svg width="18" height="18" viewBox="0 0 40 40" fill="none">
-          <circle cx="20" cy="20" r="20" fill="rgba(255,255,255,0.3)"/>
-          <path d="M20 8C13.37 8 8 13.37 8 20c0 2.14.57 4.14 1.55 5.87L8 32l6.3-1.52A11.93 11.93 0 0 0 20 32c6.63 0 12-5.37 12-12S26.63 8 20 8zm6.03 16.5c-.25.7-1.47 1.35-2 1.4-.53.05-1.03.23-3.43-.72-2.88-1.12-4.72-4.07-4.87-4.27-.15-.2-1.18-1.57-1.18-2.99 0-1.42.74-2.12 1.01-2.41.27-.29.59-.37.78-.37h.56c.18 0 .43-.07.67.51.25.59.84 2.05.91 2.2.07.15.12.33.02.52-.09.19-.14.31-.27.48-.14.17-.29.38-.41.51-.13.13-.27.27-.12.54.15.27.68 1.12 1.46 1.81 1 .9 1.85 1.18 2.12 1.31.27.13.43.11.59-.06.15-.17.64-.74.81-1 .17-.25.34-.21.57-.13.23.08 1.46.69 1.71.81.25.12.42.18.48.28.06.1.06.57-.19 1.27z" fill="white"/>
-        </svg>
+        <svg width="18" height="18" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="20" fill="rgba(255,255,255,0.3)"/><path d="M20 8C13.37 8 8 13.37 8 20c0 2.14.57 4.14 1.55 5.87L8 32l6.3-1.52A11.93 11.93 0 0 0 20 32c6.63 0 12-5.37 12-12S26.63 8 20 8zm6.03 16.5c-.25.7-1.47 1.35-2 1.4-.53.05-1.03.23-3.43-.72-2.88-1.12-4.72-4.07-4.87-4.27-.15-.2-1.18-1.57-1.18-2.99 0-1.42.74-2.12 1.01-2.41.27-.29.59-.37.78-.37h.56c.18 0 .43-.07.67.51.25.59.84 2.05.91 2.2.07.15.12.33.02.52-.09.19-.14.31-.27.48-.14.17-.29.38-.41.51-.13.13-.27.27-.12.54.15.27.68 1.12 1.46 1.81 1 .9 1.85 1.18 2.12 1.31.27.13.43.11.59-.06.15-.17.64-.74.81-1 .17-.25.34-.21.57-.13.23.08 1.46.69 1.71.81.25.12.42.18.48.28.06.1.06.57-.19 1.27z" fill="white"/></svg>
         Pay with WhatsApp Pay
       </button>
-
       <div class="security-note">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="11" width="18" height="11" rx="2"/>
-          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-        </svg>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         Powered by WhatsApp Pay · UPI secured
       </div>
     </div>
 
   </div><!-- end .pay-wrap -->
 
+  <!-- ── Payment Result Modal ── -->
+  <div class="modal-overlay" id="resultModal">
+    <div class="modal-box" id="modalBox">
+      <div class="modal-icon-wrap" id="modalIconWrap"></div>
+      <div class="modal-title" id="modalTitle"></div>
+      <div class="modal-sub" id="modalSub"></div>
+      <div class="modal-txn" id="modalTxn"></div>
+      <div class="modal-actions" id="modalActions"></div>
+    </div>
+  </div>
+
+  <!-- ── Booking Success Popup ── -->
+  <div class="booking-overlay" id="bookingOverlay">
+    <div class="booking-popup" id="bookingPopup">
+      <div class="confetti-wrap" id="confettiWrap"></div>
+      <div class="booking-check">
+        <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle class="check-circle" cx="26" cy="26" r="25" stroke="#1D9E75" stroke-width="2"/>
+          <path class="check-tick" d="M14 26 L22 34 L38 18" stroke="#1D9E75" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="booking-title">Booking Confirmed! 🎉</div>
+      <div class="booking-pkg" id="bookingPkg">Wanderlust Package</div>
+      <div class="booking-details">
+        <div class="booking-detail-row">
+          <span>Booking ID</span><strong id="bookingId">WL-2025-XXXX</strong>
+        </div>
+        <div class="booking-detail-row">
+          <span>Amount Paid</span><strong id="bookingAmt">₹2,499</strong>
+        </div>
+        <div class="booking-detail-row">
+          <span>Date</span><strong id="bookingDate"></strong>
+        </div>
+      </div>
+      <div class="booking-msg">Your adventure awaits! Check your email for the full itinerary.</div>
+      <div class="booking-btns">
+        <button class="btn-download" onclick="downloadReceipt()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download Receipt
+        </button>
+        <button class="btn-confirm" onclick="redirectToConfirmation()">
+          View Booking
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Session Expired Overlay ── -->
+  <div class="session-expired" id="sessionExpired">
+    <div class="expired-box">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#c0522a" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <div class="expired-title">Session Expired</div>
+      <div class="expired-sub">Your payment session has timed out for security. Please start again.</div>
+      <button class="expired-btn" onclick="location.reload()">Restart Session</button>
+    </div>
+  </div>
+
   <script src="{% static 'payment_page.js' %}"></script>
   <script>
-    // Initialize payment page with dynamic amounts
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       try {
-        // Update header amount
         const formattedAmount = getFormattedAmount();
-        const headerElement = document.getElementById('headerAmount');
-        if (headerElement) headerElement.textContent = formattedAmount;
-        
-        // Update pay buttons if they exist
-        const upiBtn = document.getElementById('upiPayBtn');
-        if (upiBtn) upiBtn.textContent = 'Pay ' + formattedAmount;
-        
-        const cardBtn = document.getElementById('cardPayBtn');
-        if (cardBtn) cardBtn.textContent = 'Pay ' + formattedAmount + ' securely';
-        
-        // Update WhatsApp step text
-        const waStepTexts = document.querySelectorAll('.wa-step-text');
-        if (waStepTexts.length >= 2) {
-          waStepTexts[1].textContent = 'Confirm the payment amount of ' + formattedAmount;
-        }
+        document.getElementById('headerAmount').textContent = formattedAmount;
+        document.getElementById('upiPayBtn').textContent = 'Pay ' + formattedAmount;
+        document.getElementById('cardPayBtn').textContent = 'Pay ' + formattedAmount + ' securely';
+        document.getElementById('waAmountStep').textContent = 'Confirm the payment amount of ' + formattedAmount;
+        document.getElementById('origAmt').textContent = formattedAmount;
+        document.getElementById('finalAmt').textContent = formattedAmount;
+        document.getElementById('bookingDate').textContent = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
       } catch (err) {
-        console.log('Payment page initialized with defaults');
+        console.log('Initialized with defaults');
       }
     });
   </script>
