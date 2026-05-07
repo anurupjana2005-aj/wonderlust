@@ -457,7 +457,7 @@
             <li><a href="{% url 'booking' %}">Booking</a></li>
             <li><a href="#contact">Contact</a></li>
             {% if request.user.is_authenticated %}
-                <li><a href="{% url 'dashboard' %}" class="btn btn-dashboard"><i class="fas fa-th-large"></i> Dashboard</a></li>
+                <li><a href="{% url 'dashboard' %}" class="btn btn-dashboard"><i class="fas fa-th-large"></i> My Bookings</a></li>
                 <li><a href="{% url 'logout' %}" class="btn btn-outline">Logout</a></li>
             {% else %}
                 <li><a href="{% url 'login' %}" class="btn btn-outline">Login</a></li>
