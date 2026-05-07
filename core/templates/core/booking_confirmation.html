@@ -57,11 +57,11 @@
                 </div>
                 <div class="detail-block">
                     <div class="title">Booked On</div>
-                    <div class="value">{{ booking.booking_date|date:"D, d M Y" }}</div>
+                   <div class="value">{{ booking.booking_date|date:"D, d M Y" }}</div>
                 </div>
                 <div class="detail-block">
                     <div class="title">Traveler</div>
-                    <div class="value">{{ request.user.first_name|default:request.user.username }}</div>
+                    <div class="value">{{ booking.traveler_name|default:request.user.first_name|default:request.user.username }}</div>
                 </div>
             </div>
             <div class="button-row">
