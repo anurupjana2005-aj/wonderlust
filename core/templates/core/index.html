@@ -78,6 +78,11 @@
             align-items: center;
             gap: 2rem;
         }
+        /* FIX: make each li a flex container for proper vertical alignment */
+        .nav-links li {
+            display: flex;
+            align-items: center;
+        }
         .nav-links li a {
             text-decoration: none;
             color: var(--muted);
@@ -111,11 +116,14 @@
             display: inline-block;
         }
         .btn-outline {
-            border: 1px solid var(--rust);
-            color: var(--rust);
-            background: transparent;
+            border: 2px solid var(--rust);
+            color: #ffffff !important;
+            background: var(--rust);
             position: relative;
             overflow: hidden;
+            font-weight: 700;
+            font-size: .88rem;
+            letter-spacing: .08em;
         }
         .btn-outline::after {
             content: '';
@@ -125,7 +133,7 @@
             transform: skewX(-20deg);
             transition: left .4s ease;
         }
-        .btn-outline:hover { background: var(--rust); color: var(--white); }
+        .btn-outline:hover { background: #a8421c; color: #ffffff !important; border-color: #a8421c; }
         .btn-outline:hover::after { left: 150%; }
 
         /* Dashboard button – gold variant */
@@ -149,13 +157,10 @@
         }
         .btn-dashboard:hover { background: var(--gold); color: var(--white); }
         .btn-dashboard:hover::after { left: 150%; }
-        /* Remove the underline pseudo-element for buttons */
+        /* FIX: hide the underline pseudo-element for buttons */
         .nav-links li a.btn-outline::after,
         .nav-links li a.btn-dashboard::after {
-            background: rgba(255,255,255,.3);
-            height: 100%;
-            bottom: auto; top: 0;
-            transform: skewX(-20deg);
+            display: none;
         }
 
         .hamburger {
