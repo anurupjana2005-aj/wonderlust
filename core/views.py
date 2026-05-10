@@ -8,6 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 import json
 from .models import Booking
+
 # Package pricing mapping
 PACKAGES = {
     'Maldives Overwater Escape': {'price': 185000, 'currency': '₹'},
@@ -81,73 +82,73 @@ def signup(request):
 @login_required(login_url='login')
 def booking(request):
     if request.method == 'POST':
-        # Save traveler details to session
         traveler_name = request.POST.get('fullname', '').strip()
-        adults = int(request.POST.get('adults', 1))
-        children = int(request.POST.get('children', 0))
-        num_persons = adults + children
-        
+        phone         = request.POST.get('phone', '').strip()
+        adults        = int(request.POST.get('adults', 1))
+        children      = int(request.POST.get('children', 0))
+        num_persons   = adults + children
+
         if traveler_name:
             request.session['traveler_name'] = traveler_name
-        request.session['num_persons'] = num_persons
+        if phone:
+            request.session['phone']         = phone
+        request.session['num_adults']        = adults    # ← save adults
+        request.session['num_children']      = children  # ← save children
+        request.session['num_persons']       = num_persons
         return redirect('payment')
-    
+
     # Get package from URL parameter
     package_name = request.GET.get('package')
     if package_name:
         package_name = package_name.strip()
-    
+
     if package_name:
-        # Validate package exists
         if package_name in PACKAGES:
             package_info = PACKAGES[package_name]
-            request.session['selected_package'] = package_name
+            request.session['selected_package']       = package_name
             request.session['selected_package_price'] = package_info['price']
             context = {
                 'selected_package': package_name,
-                'package_price': package_info['price'],
-                'currency': package_info['currency']
+                'package_price':    package_info['price'],
+                'currency':         package_info['currency']
             }
         else:
             messages.error(request, 'Invalid package selected.')
             return redirect('packages')
     else:
-        # Check if package exists in session
         selected_package = request.session.get('selected_package')
-        selected_price = request.session.get('selected_package_price')
+        selected_price   = request.session.get('selected_package_price')
         if not selected_package:
             messages.error(request, 'Please select a package first.')
             return redirect('packages')
         context = {
             'selected_package': selected_package,
-            'package_price': selected_price,
-            'currency': '₹'
+            'package_price':    selected_price,
+            'currency':         '₹'
         }
-    
+
     return render(request, 'core/booking.html', context)
 
 @login_required(login_url='login')
 def payment(request):
-    # Get package price from session
     selected_package = request.session.get('selected_package')
-    package_price = request.session.get('selected_package_price')
-    num_persons = request.session.get('num_persons', 1)
-    
+    package_price    = request.session.get('selected_package_price')
+    num_persons      = request.session.get('num_persons', 1)
+
     if not selected_package or not package_price:
         messages.error(request, 'Please complete your booking first.')
         return redirect('booking')
-    
-    # Calculate total amount based on number of persons
+
     total_amount = package_price * num_persons
-    
+
     context = {
         'selected_package': selected_package,
-        'package_price': total_amount,  # Pass the total amount
-        'base_price': package_price,    # Keep base price for display
-        'num_persons': num_persons,
-        'currency': '₹'
+        'package_price':    total_amount,
+        'base_price':       package_price,
+        'num_persons':      num_persons,
+        'currency':         '₹'
     }
-    
+
     return render(request, 'core/payment_page.html', context)
 
 
@@ -166,36 +167,31 @@ def packages(request):
 def dashboard(request):
     bookings = Booking.objects.filter(user=request.user).order_by('-booking_date')
     confirmed_count = bookings.filter(status='confirmed').count()
-    upcoming_count = bookings.filter(status='confirmed').count()
-    next_booking = bookings.first() if bookings.exists() else None
+    upcoming_count  = bookings.filter(status='confirmed').count()
+    next_booking    = bookings.first() if bookings.exists() else None
 
     default_image = 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=600'
-    # Ensure each booking has the correct package image
     for booking in bookings:
-        package_key = booking.package_name.strip() if booking.package_name else ''
-        # Always use PACKAGE_IMAGES mapping for consistency
+        package_key      = booking.package_name.strip() if booking.package_name else ''
         booking.image_url = PACKAGE_IMAGES.get(package_key, default_image)
 
     context = {
-        'bookings': bookings,
+        'bookings':        bookings,
         'confirmed_count': confirmed_count,
-        'upcoming_count': upcoming_count,
-        'next_booking': next_booking,
+        'upcoming_count':  upcoming_count,
+        'next_booking':    next_booking,
     }
     return render(request, 'core/dashboard.html', context)
 
 @login_required(login_url='login')
 def booking_confirmation(request, txn_id):
-    """Display booking confirmation details"""
     booking = Booking.objects.filter(transaction_id=txn_id, user=request.user).first()
-    
+
     if not booking:
         messages.error(request, 'Booking not found.')
         return redirect('dashboard')
-    
-    context = {
-        'booking': booking,
-    }
+
+    context = {'booking': booking}
     return render(request, 'core/booking_confirmation.html', context)
 
 @csrf_exempt
@@ -205,36 +201,46 @@ def create_booking(request):
     """API endpoint to create a booking after successful payment"""
     try:
         data = json.loads(request.body)
-        
+
         selected_package = request.session.get('selected_package')
-        selected_price = request.session.get('selected_package_price')
-        traveler_name = request.session.get('traveler_name', '')
-        num_persons = request.session.get('num_persons', 1)
-        
+        selected_price   = request.session.get('selected_package_price')
+        traveler_name    = request.session.get('traveler_name', '')
+        phone            = request.session.get('phone', '')
+        num_persons      = request.session.get('num_persons', 1)
+        num_adults       = request.session.get('num_adults', 1)    # ← get adults
+        num_children     = request.session.get('num_children', 0)  # ← get children
+
         if not selected_package or not selected_price:
             return JsonResponse({'success': False, 'message': 'Package not found in session'}, status=400)
-        
+
         selected_package = selected_package.strip()
-        default_image = 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=600'
-        final_amount = data.get('amount', selected_price * num_persons)
+        default_image    = 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=600'
+        final_amount     = data.get('amount', selected_price * num_persons)
+
         booking = Booking.objects.create(
-            user=request.user,
-            package_name=selected_package,
-            amount=final_amount,
-            transaction_id=data.get('txn_id'),
-            payment_method=data.get('method', 'Online'),
-            status='confirmed',
-            traveler_name=traveler_name,
-            image_url=PACKAGE_IMAGES.get(selected_package, default_image),
-            num_persons=num_persons
+            user            = request.user,
+            package_name    = selected_package,
+            amount          = final_amount,
+            transaction_id  = data.get('txn_id'),
+            payment_method  = data.get('method', 'Online'),
+            status          = 'confirmed',
+            traveler_name   = traveler_name,
+            phone           = phone,
+            image_url       = PACKAGE_IMAGES.get(selected_package, default_image),
+            num_persons     = num_persons,
+            num_adults      = num_adults,    # ← save adults to DB
+            num_children    = num_children,  # ← save children to DB
         )
-        
+
         # Clear session
         request.session.pop('selected_package', None)
         request.session.pop('selected_package_price', None)
         request.session.pop('traveler_name', None)
+        request.session.pop('phone', None)
         request.session.pop('num_persons', None)
-        
+        request.session.pop('num_adults', None)    # ← clear adults
+        request.session.pop('num_children', None)  # ← clear children
+
         return JsonResponse({'success': True, 'booking_id': booking.id}, status=200)
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)}, status=400)

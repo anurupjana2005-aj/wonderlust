@@ -2,17 +2,25 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 
+
+def get_ist_time():
+    return timezone.localtime(timezone.now())
+
+
 class Booking(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookings')
     package_name = models.CharField(max_length=100)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     transaction_id = models.CharField(max_length=100, unique=True)
     payment_method = models.CharField(max_length=50, default='Online')
-    booking_date = models.DateTimeField(auto_now_add=True)
+    booking_date = models.DateTimeField(default=get_ist_time)
     status = models.CharField(max_length=20, default='confirmed')
     traveler_name = models.CharField(max_length=100, blank=True)
+    phone = models.CharField(max_length=15, blank=True)
     image_url = models.CharField(max_length=300, blank=True)
     num_persons = models.PositiveIntegerField(default=1)
+    num_adults = models.PositiveIntegerField(default=1)    # ← new
+    num_children = models.PositiveIntegerField(default=0)  # ← new
 
     def __str__(self):
         return f"Booking {self.transaction_id} - {self.package_name}"
