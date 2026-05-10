@@ -8,12 +8,18 @@
   <link rel="stylesheet" href="{% static 'payment_page.css' %}" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
   <script>
-    const PAYMENT_AMOUNT = parseInt("{{ package_price|default:2499|escapejs }}") || 2499;
     const BASE_PRICE = parseInt("{{ base_price|default:2499|escapejs }}") || 2499;
-    const NUM_PERSONS = parseInt("{{ num_persons|default:1|escapejs }}") || 1;
+    const PACKAGE_ADULTS = parseInt("{{ package_adults|default:1|escapejs }}") || 1;
+    const ADDED_ADULTS = parseInt("{{ added_adults|default:0|escapejs }}") || 0;
+    const NUM_ADULTS = parseInt("{{ num_adults|default:1|escapejs }}") || (PACKAGE_ADULTS + ADDED_ADULTS);
+    const NUM_CHILDREN = parseInt("{{ num_children|default:0|escapejs }}") || 0;
+    const NUM_PERSONS = NUM_ADULTS + NUM_CHILDREN;
+    const ADULT_RATE = Math.round(BASE_PRICE / 2);
+    const CHILD_RATE = Math.round(BASE_PRICE / 4);
+    const PAYMENT_AMOUNT = Math.round((BASE_PRICE * PACKAGE_ADULTS) + (ADULT_RATE * ADDED_ADULTS) + (CHILD_RATE * NUM_CHILDREN));
     const CURRENCY = "{{ currency|default:'₹'|escapejs }}" || "₹";
     const PACKAGE_NAME = "{{ selected_package|default:'Package'|escapejs }}" || "Package";
-    const SESSION_DURATION = 600; // 10 minutes
+    const SESSION_DURATION = 600;
 
     function formatAmount(amount) {
       return new Intl.NumberFormat('en-IN').format(amount);
@@ -67,11 +73,31 @@
     <!-- Price Summary -->
     <div class="price-summary" id="priceSummary">
       <div class="price-row">
-        <span>Base Price (per person)</span>
+        <span>Base Price (per adult)</span>
         <span id="basePriceAmt">₹{{ base_price|default:2499|intcomma }}</span>
       </div>
       <div class="price-row">
-        <span>Number of Persons</span>
+        <span>Package Adults</span>
+        <span id="packageAdults">{{ package_adults|default:1 }}</span>
+      </div>
+      <div class="price-row">
+        <span>Added Adults</span>
+        <span id="addedAdults">{{ added_adults|default:0 }}</span>
+      </div>
+      <div class="price-row">
+        <span>Number of Children</span>
+        <span id="numChildren">{{ num_children|default:0 }}</span>
+      </div>
+      <div class="price-row">
+        <span>Adult Rate</span>
+        <span id="adultRate">₹0</span>
+      </div>
+      <div class="price-row">
+        <span>Child Rate</span>
+        <span id="childRate">₹0</span>
+      </div>
+      <div class="price-row">
+        <span>Total Persons</span>
         <span id="numPersons">{{ num_persons|default:1 }}</span>
       </div>
       <div class="price-row">
@@ -99,7 +125,9 @@
     <!-- ── UPI Section ── -->
     <div id="upi" class="section active">
       <div class="card-panel">
-        <div class="label">Pay via UPI app</div>
+
+        <!-- Step 1: Select App -->
+        <div class="label">Step 1 — Select your UPI app</div>
         <div class="upi-apps">
           <div class="upi-app" onclick="selectApp(this, 'gpay')">
             <div class="icon" style="background:#E8F0FE;">
@@ -126,14 +154,23 @@
             <span class="name">BHIM</span>
           </div>
         </div>
-        <div class="divider">or enter UPI ID</div>
-        <div class="field" style="margin-top: 10px;">
-          <label>UPI ID / VPA</label>
-          <div class="upi-row">
-            <input type="text" placeholder="yourname@upi" id="upiId" />
-            <button class="verify-btn" onclick="verifyUPI()">Verify</button>
+
+        <!-- Step 2: Enter UPI ID -->
+        <div id="upiManualRow" style="display:none;">
+          <div class="divider">Step 2 — Enter your UPI username</div>
+          <div class="field" style="margin-top:10px;">
+            <label>UPI ID / VPA</label>
+            <!-- upi-id-wrap lets the suffix badge attach to the right of the input -->
+            <div class="upi-row">
+              <div class="upi-id-wrap">
+                <input type="text" placeholder="Select an app above first" id="upiId" />
+                <span class="upi-suffix-badge" id="upiSuffixBadge">@oksbi</span>
+              </div>
+              <button class="verify-btn" onclick="verifyUPI()">Verify</button>
+            </div>
           </div>
         </div>
+
         <div id="upiStatus"></div>
       </div>
       <button class="pay-btn green" id="upiPayBtn" onclick="pay('UPI', this)">Pay ₹2,499</button>
@@ -312,14 +349,37 @@
 
   <script src="{% static 'payment_page.js' %}"></script>
   <script>
+    function refreshPaymentSummary() {
+      const formattedTotal = getFormattedAmount(PAYMENT_AMOUNT);
+
+      const packageAdultsEl = document.getElementById('packageAdults');
+      const addedAdultsEl   = document.getElementById('addedAdults');
+      const numAdultsEl     = document.getElementById('numAdults');
+      const numChildrenEl   = document.getElementById('numChildren');
+      const numPersonsEl    = document.getElementById('numPersons');
+      const adultRateEl     = document.getElementById('adultRate');
+      const childRateEl     = document.getElementById('childRate');
+      const subtotalEl      = document.getElementById('subtotalAmt');
+
+      if (packageAdultsEl) packageAdultsEl.textContent = PACKAGE_ADULTS;
+      if (addedAdultsEl)   addedAdultsEl.textContent   = ADDED_ADULTS;
+      if (numAdultsEl)     numAdultsEl.textContent     = NUM_ADULTS;
+      if (numChildrenEl)   numChildrenEl.textContent   = NUM_CHILDREN;
+      if (numPersonsEl)    numPersonsEl.textContent    = NUM_PERSONS;
+      if (adultRateEl)     adultRateEl.textContent     = getFormattedAmount(ADULT_RATE);
+      if (childRateEl)     childRateEl.textContent     = getFormattedAmount(CHILD_RATE);
+      if (subtotalEl)      subtotalEl.textContent      = formattedTotal;
+
+      document.getElementById('headerAmount').textContent = formattedTotal;
+      document.getElementById('upiPayBtn').textContent = 'Pay ' + formattedTotal;
+      document.getElementById('cardPayBtn').textContent = 'Pay ' + formattedTotal + ' securely';
+      document.getElementById('waAmountStep').textContent = 'Confirm the payment amount of ' + formattedTotal;
+      document.getElementById('finalAmt').textContent = formattedTotal;
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
       try {
-        const formattedAmount = getFormattedAmount();
-        document.getElementById('headerAmount').textContent = formattedAmount;
-        document.getElementById('upiPayBtn').textContent = 'Pay ' + formattedAmount;
-        document.getElementById('cardPayBtn').textContent = 'Pay ' + formattedAmount + ' securely';
-        document.getElementById('waAmountStep').textContent = 'Confirm the payment amount of ' + formattedAmount;
-        document.getElementById('finalAmt').textContent = formattedAmount;
+        refreshPaymentSummary();
         document.getElementById('bookingDate').textContent = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
       } catch (err) {
         console.log('Initialized with defaults');

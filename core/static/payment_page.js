@@ -12,6 +12,14 @@ let appliedPromo         = null;
 let currentPayableAmount = typeof PAYMENT_AMOUNT !== 'undefined' ? PAYMENT_AMOUNT : 2499;
 let lastTxnData          = null;
 
+// ── UPI App → allowed suffix mapping ──
+const UPI_APP_SUFFIX = {
+  gpay:    '@oksbi',
+  phonepe: '@ybl',
+  paytm:   '@ptyes',
+  bhim:    '@upi',
+};
+
 // ── Session Timer ──
 let sessionSeconds = typeof SESSION_DURATION !== 'undefined' ? SESSION_DURATION : 600;
 
@@ -39,7 +47,6 @@ function switchTab(name) {
 
 // ── Promo Code ──
 function togglePromo() {
-  // Don't allow toggling if a promo is already applied
   if (appliedPromo) return;
   const field   = document.getElementById('promoField');
   const chevron = document.getElementById('promoChevron');
@@ -65,7 +72,6 @@ function applyPromo() {
     const discountVal = Math.round(baseAmt * promo.discount / 100);
     currentPayableAmount = baseAmt - discountVal;
 
-    // ── Show applied badge + cancel button in status ──
     status.innerHTML = `
       <div style="
         display:flex; align-items:center; justify-content:space-between;
@@ -95,17 +101,16 @@ function applyPromo() {
         </button>
       </div>`;
 
-    // Disable input and apply button while promo is active
     const promoInput = document.getElementById('promoInput');
     const applyBtn   = document.querySelector('.promo-apply-btn');
     if (promoInput) promoInput.disabled = true;
     if (applyBtn)   applyBtn.disabled   = true;
 
-    // ── Close the promo field ──
-    const promoField = document.getElementById('promoField');
-    if (promoField) promoField.classList.remove('open');
+    const promoField   = document.getElementById('promoField');
+    const promoChevron = document.getElementById('promoChevron');
+    if (promoField)   promoField.classList.remove('open');
+    if (promoChevron) promoChevron.style.transform = 'rotate(0deg)';
 
-    // ── Update the toggle button to show "Applied" state ──
     const promoToggle = document.querySelector('.promo-toggle');
     if (promoToggle) {
       promoToggle.innerHTML = `
@@ -118,12 +123,11 @@ function applyPromo() {
           <path d="M20 6L9 17l-5-5"/>
         </svg>
       `;
-      promoToggle.style.borderColor  = '#1D9E75';
-      promoToggle.style.background   = '#f0faf7';
-      promoToggle.style.borderStyle  = 'solid';
+      promoToggle.style.borderColor = '#1D9E75';
+      promoToggle.style.background  = '#f0faf7';
+      promoToggle.style.borderStyle = 'solid';
     }
 
-    // ── Update price summary ──
     summary.style.display = 'block';
 
     const basePriceEl  = document.getElementById('basePriceAmt');
@@ -164,23 +168,14 @@ function applyPromo() {
   }
 }
 
-
 // ── Cancel / Remove Promo ──
 function cancelPromo() {
   appliedPromo         = null;
   currentPayableAmount = typeof PAYMENT_AMOUNT !== 'undefined' ? PAYMENT_AMOUNT : 2499;
 
-  // Clear status badge
   const status = document.getElementById('promoStatus');
   if (status) status.innerHTML = '';
 
-  // Re-enable input and apply button
-  const promoInput = document.getElementById('promoInput');
-  const applyBtn   = document.querySelector('.promo-apply-btn');
-  if (promoInput) { promoInput.disabled = false; promoInput.value = ''; }
-  if (applyBtn)   applyBtn.disabled = false;
-
-  // ── Reset the toggle button back to its original state ──
   const promoToggle = document.querySelector('.promo-toggle');
   if (promoToggle) {
     promoToggle.innerHTML = `
@@ -196,11 +191,14 @@ function cancelPromo() {
     promoToggle.style.borderStyle = 'dashed';
   }
 
-  // ── Close the promo field so it doesn't stay open ──
   const promoField = document.getElementById('promoField');
   if (promoField) promoField.classList.remove('open');
 
-  // ── Reset price summary ──
+  const promoInput = document.getElementById('promoInput');
+  const applyBtn   = document.querySelector('.promo-apply-btn');
+  if (promoInput) { promoInput.disabled = false; promoInput.value = ''; }
+  if (applyBtn)   applyBtn.disabled = false;
+
   const discountRow = document.getElementById('discountRow');
   const finalAmt    = document.getElementById('finalAmt');
   const headerAmt   = document.getElementById('headerAmount');
@@ -226,10 +224,125 @@ function updatePayButtons() {
 
 // ── UPI App Selection ──
 let selectedUpiApp = '';
+
 function selectApp(el, app) {
   document.querySelectorAll('.upi-app').forEach(a => a.classList.remove('selected'));
   el.classList.add('selected');
   selectedUpiApp = app;
+
+  const suffix     = UPI_APP_SUFFIX[app];
+  const upiInput   = document.getElementById('upiId');
+  const upiStatus  = document.getElementById('upiStatus');
+  const suffixBadge = document.getElementById('upiSuffixBadge');
+
+  // Set placeholder and enforce suffix
+  upiInput.placeholder = `username${suffix}`;
+  upiInput.value       = '';
+
+  // Show the locked suffix badge
+  if (suffixBadge) {
+    suffixBadge.textContent = suffix;
+    suffixBadge.style.display = 'flex';
+  }
+
+  // Clear previous status
+  upiStatus.textContent = '';
+
+  // Show helper message
+  upiStatus.style.color = '#185FA5';
+  upiStatus.textContent = `Enter your username — suffix ${suffix} will be added automatically`;
+
+  // Hide the "or enter UPI ID" divider row instruction area
+  const upiManualRow = document.getElementById('upiManualRow');
+  if (upiManualRow) upiManualRow.style.display = 'block';
+
+  // Enforce suffix on input
+  upiInput.oninput = function () {
+    enforceUpiSuffix(this, suffix);
+  };
+
+  // Enforce suffix on blur too
+  upiInput.onblur = function () {
+    enforceUpiSuffix(this, suffix);
+  };
+}
+
+// ── Enforce UPI suffix — user types only the username part ──
+function enforceUpiSuffix(input, suffix) {
+  let val = input.value;
+
+  // Strip any @ and everything after it that the user might have typed
+  // Keep only the username part (before @)
+  if (val.includes('@')) {
+    val = val.split('@')[0];
+  }
+
+  // Remove spaces and invalid chars
+  val = val.replace(/[^a-zA-Z0-9._-]/g, '');
+
+  // Update input: username only (suffix shown in badge)
+  input.value = val;
+
+  // Show real-time feedback
+  const status = document.getElementById('upiStatus');
+  if (val.length === 0) {
+    status.style.color = '#185FA5';
+    status.textContent = `Enter your username — suffix ${suffix} will be added automatically`;
+  } else {
+    status.style.color = '#1D9E75';
+    status.textContent = `✓ UPI ID will be: ${val}${suffix}`;
+  }
+}
+
+// ── Get full UPI ID (username + suffix) ──
+function getFullUpiId() {
+  const upiInput = document.getElementById('upiId');
+  const username = upiInput.value.trim();
+  if (!selectedUpiApp || !username) return username;
+  const suffix = UPI_APP_SUFFIX[selectedUpiApp];
+  return suffix ? `${username}${suffix}` : username;
+}
+
+// ── UPI Verify ──
+async function verifyUPI() {
+  const status = document.getElementById('upiStatus');
+
+  // Must select an app first
+  if (!selectedUpiApp) {
+    status.style.color = '#E24B4A';
+    status.textContent = '⚠ Please select a UPI app first (GPay, PhonePe, Paytm, or BHIM)';
+    return;
+  }
+
+  const username = document.getElementById('upiId').value.trim();
+  if (!username) {
+    status.style.color = '#E24B4A';
+    status.textContent = 'Please enter your UPI username';
+    return;
+  }
+
+  const fullUpiId = getFullUpiId();
+  status.style.color = '#9ca3af';
+  status.textContent = `Verifying ${fullUpiId}...`;
+
+  try {
+    const res  = await fetch(`${BASE_URL}/verify/upi`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ upi_id: fullUpiId })
+    });
+    const data = await res.json();
+    if (data.valid) {
+      status.style.color = '#1D9E75';
+      status.textContent = `✓ Verified: ${data.name}`;
+    } else {
+      status.style.color = '#E24B4A';
+      status.textContent = data.message || 'Invalid UPI ID';
+    }
+  } catch {
+    status.style.color = '#1D9E75';
+    status.textContent = `✓ UPI ID format valid: ${fullUpiId}`;
+  }
 }
 
 // ── Bank Selection ──
@@ -240,23 +353,6 @@ function selectBank(el) {
   const nameEl  = el.querySelector('.bank-name');
   const codeMap = { 'State Bank': 'SBI', 'HDFC Bank': 'HDFC', 'ICICI Bank': 'ICICI', 'Axis Bank': 'AXIS', 'Kotak': 'KOTAK', 'Bank of Baroda': 'BOB' };
   selectedBank = codeMap[nameEl.textContent.trim()] || nameEl.textContent.trim();
-}
-
-// ── UPI Verify ──
-async function verifyUPI() {
-  const val    = document.getElementById('upiId').value.trim();
-  const status = document.getElementById('upiStatus');
-  if (!val) { status.style.color = '#E24B4A'; status.textContent = 'Please enter a UPI ID'; return; }
-  status.style.color = '#9ca3af'; status.textContent = 'Verifying...';
-  try {
-    const res  = await fetch(`${BASE_URL}/verify/upi`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ upi_id: val }) });
-    const data = await res.json();
-    if (data.valid) { status.style.color = '#1D9E75'; status.textContent = `✓ Verified: ${data.name}`; }
-    else            { status.style.color = '#E24B4A'; status.textContent = data.message || 'Invalid UPI ID'; }
-  } catch {
-    if (val.includes('@')) { status.style.color = '#1D9E75'; status.textContent = '✓ UPI ID format valid'; }
-    else                    { status.style.color = '#E24B4A'; status.textContent = 'Invalid format (e.g. name@upi)'; }
-  }
 }
 
 // ── Card Formatting ──
@@ -324,7 +420,6 @@ async function showBookingSuccess() {
   document.getElementById('bookingId').textContent   = 'WL-' + txnId.slice(0, 8).toUpperCase();
   document.getElementById('bookingDate').textContent = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
 
-  // Re-clone check element to restart SVG stroke animations
   const oldCheck = document.querySelector('.booking-check');
   if (oldCheck) {
     const clone = oldCheck.cloneNode(true);
@@ -341,14 +436,14 @@ function redirectToConfirmation() {
   window.location.href = '/dashboard';
 }
 
-// ── Confetti (60 pieces, varied shapes) ──
+// ── Confetti ──
 function spawnConfetti() {
   const wrap = document.getElementById('confettiWrap');
   if (!wrap) return;
   const colors = ['#1D9E75','#c0522a','#185FA5','#f59e0b','#ec4899','#8b5cf6','#10b981','#f97316'];
   wrap.innerHTML = '';
   for (let i = 0; i < 60; i++) {
-    const el   = document.createElement('div');
+    const el = document.createElement('div');
     el.className = 'confetti-piece';
     const size = 5 + Math.random() * 8;
     el.style.cssText = `
@@ -365,7 +460,7 @@ function spawnConfetti() {
   }
 }
 
-// ── Star bursts around popup ──
+// ── Star bursts ──
 function animateStars() {
   const popup = document.getElementById('bookingPopup');
   if (!popup) return;
@@ -380,13 +475,13 @@ function animateStars() {
   ];
   config.forEach((c, i) => {
     const star = document.createElement('div');
-    star.className  = 'star-burst';
+    star.className   = 'star-burst';
     star.textContent = c.icon;
     Object.assign(star.style, {
-      position:   'absolute',
-      fontSize:   (13 + Math.random() * 7) + 'px',
-      color:       c.color,
-      animation:  `starPop 0.45s cubic-bezier(0.34,1.56,0.64,1) ${i * 0.07}s both, starFloat 2.4s ease-in-out ${i * 0.07 + 0.45}s infinite alternate`,
+      position:      'absolute',
+      fontSize:      (13 + Math.random() * 7) + 'px',
+      color:          c.color,
+      animation:     `starPop 0.45s cubic-bezier(0.34,1.56,0.64,1) ${i * 0.07}s both, starFloat 2.4s ease-in-out ${i * 0.07 + 0.45}s infinite alternate`,
       pointerEvents: 'none',
       ...Object.fromEntries(Object.entries(c).filter(([k]) => !['icon','color'].includes(k))),
     });
@@ -396,11 +491,11 @@ function animateStars() {
 
 // ── Receipt Download ──
 function downloadReceipt() {
-  const txnId    = lastTxnData?.txn_id || mkTxn();
-  const amount   = getFormattedAmount(currentPayableAmount);
-  const pkgName  = typeof PACKAGE_NAME !== 'undefined' ? PACKAGE_NAME : 'Wanderlust Package';
+  const txnId   = lastTxnData?.txn_id || mkTxn();
+  const amount  = getFormattedAmount(currentPayableAmount);
+  const pkgName = typeof PACKAGE_NAME !== 'undefined' ? PACKAGE_NAME : 'Wanderlust Package';
   const promoTxt = appliedPromo ? `Promo Code    : ${appliedPromo.code} (${appliedPromo.discount}% off)\n` : '';
-  const receipt  = `
+  const receipt = `
 ===========================================
        WANDERLUST TRAVELS — RECEIPT
 ===========================================
@@ -427,21 +522,44 @@ For support: support@wanderlust.travel
 
 /* ══════════════════════════════════════════
    PAYMENT METHODS
-   All paths (success or network error) →
-   showBookingSuccess()
-   Backend errors are bypassed in frontend/
-   demo mode with a generated TXN ID.
 ══════════════════════════════════════════ */
 async function payUPI(btn) {
-  const upiId  = document.getElementById('upiId').value.trim();
   const status = document.getElementById('upiStatus');
-  if (!upiId || !upiId.includes('@')) {
+
+  // ── Step 1: Must select a UPI app ──
+  if (!selectedUpiApp) {
     status.style.color = '#E24B4A';
-    status.textContent = 'Please enter a valid UPI ID';
-    setLoading(btn, false); return;
+    status.textContent = '⚠ Please select a UPI app first (GPay, PhonePe, Paytm, or BHIM)';
+
+    // Shake the upi-apps grid to draw attention
+    const appsGrid = document.querySelector('.upi-apps');
+    if (appsGrid) {
+      appsGrid.style.animation = 'none';
+      appsGrid.offsetHeight; // reflow
+      appsGrid.style.animation = 'shakeApps 0.4s ease';
+    }
+    setLoading(btn, false);
+    return;
   }
+
+  // ── Step 2: Must enter username ──
+  const username = document.getElementById('upiId').value.trim();
+  if (!username) {
+    status.style.color = '#E24B4A';
+    const suffix = UPI_APP_SUFFIX[selectedUpiApp];
+    status.textContent = `Please enter your UPI username (e.g. yourname${suffix})`;
+    setLoading(btn, false);
+    return;
+  }
+
+  const fullUpiId = getFullUpiId();
+
   try {
-    const res  = await fetch(`${BASE_URL}/pay/upi`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ upi_id: upiId, amount: currentPayableAmount, app: selectedUpiApp || 'UPI' }) });
+    const res  = await fetch(`${BASE_URL}/pay/upi`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ upi_id: fullUpiId, amount: currentPayableAmount, app: selectedUpiApp })
+    });
     const data = await res.json();
     lastTxnData = { txn_id: data.txn_id || mkTxn(), method: selectedUpiApp || 'UPI' };
   } catch {
@@ -463,7 +581,11 @@ async function payCard(btn) {
   if (!cvv || cvv.length < 3)           { alert('Invalid CVV');               setLoading(btn, false); return; }
 
   try {
-    const res  = await fetch(`${BASE_URL}/pay/card`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ card_number: cardNum, cardholder, expiry, cvv, amount: currentPayableAmount }) });
+    const res  = await fetch(`${BASE_URL}/pay/card`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ card_number: cardNum, cardholder, expiry, cvv, amount: currentPayableAmount })
+    });
     const data = await res.json();
     lastTxnData = { txn_id: data.txn_id || mkTxn(), method: 'Card' };
   } catch {
@@ -476,7 +598,11 @@ async function payCard(btn) {
 async function payNetbanking(btn) {
   if (!selectedBank) { alert('Please select a bank'); setLoading(btn, false); return; }
   try {
-    const res  = await fetch(`${BASE_URL}/pay/netbanking`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ bank_code: selectedBank, amount: currentPayableAmount }) });
+    const res  = await fetch(`${BASE_URL}/pay/netbanking`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bank_code: selectedBank, amount: currentPayableAmount })
+    });
     const data = await res.json();
     lastTxnData = { txn_id: data.txn_id || mkTxn(), method: selectedBank };
   } catch {
@@ -490,7 +616,11 @@ async function payWhatsapp(btn) {
   const phone = prompt('Enter your WhatsApp-registered mobile number:');
   if (!phone || phone.trim().length < 10) { alert('Enter a valid 10-digit number'); setLoading(btn, false); return; }
   try {
-    const res  = await fetch(`${BASE_URL}/pay/whatsapp`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ phone: phone.trim(), amount: currentPayableAmount }) });
+    const res  = await fetch(`${BASE_URL}/pay/whatsapp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone: phone.trim(), amount: currentPayableAmount })
+    });
     const data = await res.json();
     lastTxnData = { txn_id: data.txn_id || mkTxn(), method: 'WhatsApp Pay' };
   } catch {
@@ -503,7 +633,6 @@ async function payWhatsapp(btn) {
 // ── Main Dispatcher ──
 function pay(method, btn) {
   setLoading(btn, true);
-  // Small artificial delay so the loading spinner shows before popup
   setTimeout(() => {
     if      (method === 'UPI')          payUPI(btn);
     else if (method === 'Card')         payCard(btn);
@@ -512,7 +641,7 @@ function pay(method, btn) {
   }, 1400);
 }
 
-// ── Dynamic CSS: spinner + star animations ──
+// ── Dynamic CSS ──
 const dynStyle = document.createElement('style');
 dynStyle.textContent = `
   @keyframes spin {
@@ -526,6 +655,43 @@ dynStyle.textContent = `
   @keyframes starFloat {
     from { transform: translateY(0px) rotate(0deg); }
     to   { transform: translateY(-9px) rotate(12deg); }
+  }
+  @keyframes shakeApps {
+    0%,100% { transform: translateX(0); }
+    20%     { transform: translateX(-6px); }
+    40%     { transform: translateX(6px); }
+    60%     { transform: translateX(-4px); }
+    80%     { transform: translateX(4px); }
+  }
+  .upi-suffix-badge {
+    display: none;
+    align-items: center;
+    background: #e6f1fb;
+    border: 1px solid #185FA5;
+    border-left: none;
+    border-radius: 0 8px 8px 0;
+    padding: 0 12px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #185FA5;
+    white-space: nowrap;
+    height: 100%;
+    min-height: 38px;
+    letter-spacing: 0.03em;
+  }
+  .upi-id-wrap {
+    display: flex;
+    align-items: stretch;
+    flex: 1;
+    position: relative;
+  }
+  .upi-id-wrap input {
+    border-radius: 8px 0 0 8px !important;
+    border-right: none !important;
+    flex: 1;
+  }
+  .upi-id-wrap input:focus {
+    border-color: #185FA5 !important;
   }
 `;
 document.head.appendChild(dynStyle);

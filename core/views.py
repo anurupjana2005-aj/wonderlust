@@ -11,12 +11,12 @@ from .models import Booking
 
 # Package pricing mapping
 PACKAGES = {
-    'Maldives Overwater Escape': {'price': 185000, 'currency': '₹'},
-    'Goa Beach Escape': {'price': 25000, 'currency': '₹'},
-    'Himalayan Adventure': {'price': 40000, 'currency': '₹'},
-    'Rajasthan Heritage Tour': {'price': 55000, 'currency': '₹'},
-    'Kerala Backwater & Wildlife': {'price': 38000, 'currency': '₹'},
-    'Sikkim Serenity': {'price': 32000, 'currency': '₹'},
+    'Maldives Overwater Escape':  {'price': 185000, 'currency': '₹', 'duration': 9, 'pax': 2},
+    'Goa Beach Escape':           {'price': 25000,  'currency': '₹', 'duration': 5, 'pax': 2},
+    'Himalayan Adventure':        {'price': 40000,  'currency': '₹', 'duration': 7, 'pax': 4},
+    'Rajasthan Heritage Tour':    {'price': 55000,  'currency': '₹', 'duration': 8, 'pax': 2},
+    'Kerala Backwater & Wildlife':{'price': 38000,  'currency': '₹', 'duration': 6, 'pax': 2},
+    'Sikkim Serenity':            {'price': 32000,  'currency': '₹', 'duration': 7, 'pax': 2},
 }
 
 # Package images mapping
@@ -84,17 +84,21 @@ def booking(request):
     if request.method == 'POST':
         traveler_name = request.POST.get('fullname', '').strip()
         phone         = request.POST.get('phone', '').strip()
-        adults        = int(request.POST.get('adults', 1))
-        children      = int(request.POST.get('children', 0))
-        num_persons   = adults + children
+        fixed_adults  = int(request.POST.get('adults', 1) or 1)
+        add_adults    = int(request.POST.get('add_adult', 0) or 0)
+        children      = int(request.POST.get('children', 0) or 0)
+        total_adults  = fixed_adults + add_adults
+        num_persons   = total_adults + children
 
         if traveler_name:
             request.session['traveler_name'] = traveler_name
         if phone:
             request.session['phone']         = phone
-        request.session['num_adults']        = adults    # ← save adults
-        request.session['num_children']      = children  # ← save children
+        request.session['num_adults']        = total_adults
+        request.session['num_add_adults']    = add_adults
+        request.session['num_children']      = children
         request.session['num_persons']       = num_persons
+        request.session['package_pax']       = fixed_adults
         return redirect('payment')
 
     # Get package from URL parameter
@@ -107,10 +111,13 @@ def booking(request):
             package_info = PACKAGES[package_name]
             request.session['selected_package']       = package_name
             request.session['selected_package_price'] = package_info['price']
+            request.session['package_pax']            = package_info['pax']
             context = {
-                'selected_package': package_name,
-                'package_price':    package_info['price'],
-                'currency':         package_info['currency']
+                'selected_package':  package_name,
+                'package_price':     package_info['price'],
+                'currency':          package_info['currency'],
+                'package_duration':  package_info['duration'],
+                'package_pax':       package_info['pax'],
             }
         else:
             messages.error(request, 'Invalid package selected.')
@@ -121,10 +128,15 @@ def booking(request):
         if not selected_package:
             messages.error(request, 'Please select a package first.')
             return redirect('packages')
+        # Restore duration & pax from PACKAGES dict for session-based flow
+        pkg_info = PACKAGES.get(selected_package, {})
+        request.session['package_pax'] = request.session.get('package_pax', pkg_info.get('pax', 1))
         context = {
-            'selected_package': selected_package,
-            'package_price':    selected_price,
-            'currency':         '₹'
+            'selected_package':  selected_package,
+            'package_price':     selected_price,
+            'currency':          '₹',
+            'package_duration':  pkg_info.get('duration', ''),
+            'package_pax':       request.session['package_pax'],
         }
 
     return render(request, 'core/booking.html', context)
@@ -133,19 +145,29 @@ def booking(request):
 def payment(request):
     selected_package = request.session.get('selected_package')
     package_price    = request.session.get('selected_package_price')
-    num_persons      = request.session.get('num_persons', 1)
+    package_adults   = request.session.get('package_pax', 1)
+    added_adults     = request.session.get('num_add_adults', 0)
+    num_children     = request.session.get('num_children', 0)
+    num_adults       = request.session.get('num_adults', package_adults + added_adults)
+    num_persons      = num_adults + num_children
 
     if not selected_package or not package_price:
         messages.error(request, 'Please complete your booking first.')
         return redirect('booking')
 
-    total_amount = package_price * num_persons
+    adult_rate   = round(package_price / 2)
+    child_rate   = round(package_price / 4)
+    total_amount = (package_price * package_adults) + (adult_rate * added_adults) + (child_rate * num_children)
 
     context = {
         'selected_package': selected_package,
         'package_price':    total_amount,
         'base_price':       package_price,
+        'package_adults':   package_adults,
+        'added_adults':     added_adults,
         'num_persons':      num_persons,
+        'num_adults':       num_adults,
+        'num_children':     num_children,
         'currency':         '₹'
     }
 
@@ -238,8 +260,10 @@ def create_booking(request):
         request.session.pop('traveler_name', None)
         request.session.pop('phone', None)
         request.session.pop('num_persons', None)
-        request.session.pop('num_adults', None)    # ← clear adults
-        request.session.pop('num_children', None)  # ← clear children
+        request.session.pop('num_adults', None)
+        request.session.pop('num_add_adults', None)
+        request.session.pop('num_children', None)
+        request.session.pop('package_pax', None)
 
         return JsonResponse({'success': True, 'booking_id': booking.id}, status=200)
     except Exception as e:
