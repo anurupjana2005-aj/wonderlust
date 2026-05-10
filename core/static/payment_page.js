@@ -39,6 +39,8 @@ function switchTab(name) {
 
 // ── Promo Code ──
 function togglePromo() {
+  // Don't allow toggling if a promo is already applied
+  if (appliedPromo) return;
   const field   = document.getElementById('promoField');
   const chevron = document.getElementById('promoChevron');
   const isOpen  = field.classList.toggle('open');
@@ -49,7 +51,12 @@ function applyPromo() {
   const code    = document.getElementById('promoInput').value.trim().toUpperCase();
   const status  = document.getElementById('promoStatus');
   const summary = document.getElementById('priceSummary');
-  if (!code) { status.style.color = '#E24B4A'; status.textContent = 'Please enter a promo code'; return; }
+
+  if (!code) {
+    status.style.color = '#E24B4A';
+    status.textContent = 'Please enter a promo code';
+    return;
+  }
 
   if (PROMO_CODES[code]) {
     const promo       = PROMO_CODES[code];
@@ -58,24 +65,153 @@ function applyPromo() {
     const discountVal = Math.round(baseAmt * promo.discount / 100);
     currentPayableAmount = baseAmt - discountVal;
 
-    status.style.color = '#1D9E75';
-    status.textContent = `✓ "${code}" applied — ${promo.discount}% off (${promo.label})`;
+    // ── Show applied badge + cancel button in status ──
+    status.innerHTML = `
+      <div style="
+        display:flex; align-items:center; justify-content:space-between;
+        background:#f0faf7; border:1px solid #1D9E75;
+        border-radius:4px; padding:8px 12px; margin-top:6px;
+      ">
+        <span style="display:flex;align-items:center;gap:6px;color:#1D9E75;font-size:13px;font-weight:500;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" stroke-width="2.5">
+            <path d="M20 6L9 17l-5-5"/>
+          </svg>
+          <strong>${code}</strong> applied — ${promo.discount}% off (${promo.label})
+        </span>
+        <button onclick="cancelPromo()" style="
+          background:none; border:1px solid rgba(192,82,42,0.3); cursor:pointer;
+          color:#c0522a; font-size:11px; font-weight:600;
+          letter-spacing:0.5px; text-transform:uppercase;
+          padding:3px 8px; border-radius:3px;
+          display:flex; align-items:center; gap:4px;
+        "
+        onmouseover="this.style.background='#c0522a';this.style.color='#fff'"
+        onmouseout="this.style.background='none';this.style.color='#c0522a'"
+        >
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+          Remove
+        </button>
+      </div>`;
 
+    // Disable input and apply button while promo is active
+    const promoInput = document.getElementById('promoInput');
+    const applyBtn   = document.querySelector('.promo-apply-btn');
+    if (promoInput) promoInput.disabled = true;
+    if (applyBtn)   applyBtn.disabled   = true;
+
+    // ── Close the promo field ──
+    const promoField = document.getElementById('promoField');
+    if (promoField) promoField.classList.remove('open');
+
+    // ── Update the toggle button to show "Applied" state ──
+    const promoToggle = document.querySelector('.promo-toggle');
+    if (promoToggle) {
+      promoToggle.innerHTML = `
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" stroke-width="2.5">
+          <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+          <line x1="7" y1="7" x2="7.01" y2="7"/>
+        </svg>
+        <span style="color:#1D9E75; font-weight:600;">Promo Applied: ${code}</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" stroke-width="2.5" style="margin-left:auto;">
+          <path d="M20 6L9 17l-5-5"/>
+        </svg>
+      `;
+      promoToggle.style.borderColor  = '#1D9E75';
+      promoToggle.style.background   = '#f0faf7';
+      promoToggle.style.borderStyle  = 'solid';
+    }
+
+    // ── Update price summary ──
     summary.style.display = 'block';
-    document.getElementById('origAmt').textContent       = getFormattedAmount(baseAmt);
-    document.getElementById('discountLabel').textContent = `${promo.label} (${promo.discount}% off)`;
-    document.getElementById('discountAmt').textContent   = '- ' + getFormattedAmount(discountVal);
-    document.getElementById('finalAmt').textContent      = getFormattedAmount(currentPayableAmount);
-    document.getElementById('headerAmount').textContent  = getFormattedAmount(currentPayableAmount);
+
+    const basePriceEl  = document.getElementById('basePriceAmt');
+    const numPersonsEl = document.getElementById('numPersons');
+    const subtotalEl   = document.getElementById('subtotalAmt');
+    const discountRow  = document.getElementById('discountRow');
+    const discountLbl  = document.getElementById('discountLabel');
+    const discountAmt  = document.getElementById('discountAmt');
+    const finalAmt     = document.getElementById('finalAmt');
+    const headerAmt    = document.getElementById('headerAmount');
+
+    if (basePriceEl)  basePriceEl.textContent  = getFormattedAmount(typeof BASE_PRICE !== 'undefined' ? BASE_PRICE : baseAmt);
+    if (numPersonsEl) numPersonsEl.textContent  = typeof NUM_PERSONS !== 'undefined' ? NUM_PERSONS : 1;
+    if (subtotalEl)   subtotalEl.textContent    = getFormattedAmount(baseAmt);
+    if (discountRow)  discountRow.style.display = 'flex';
+    if (discountLbl)  discountLbl.textContent   = `${promo.label} (${promo.discount}% off)`;
+    if (discountAmt)  discountAmt.textContent   = '- ' + getFormattedAmount(discountVal);
+    if (finalAmt)     finalAmt.textContent      = getFormattedAmount(currentPayableAmount);
+    if (headerAmt)    headerAmt.textContent     = getFormattedAmount(currentPayableAmount);
+
     updatePayButtons();
+
   } else {
     status.style.color = '#E24B4A';
     status.textContent = '✗ Invalid code. Try: NEWUSER50, EXCLUSIVE20, SUMMERFUN30';
     appliedPromo = null;
     currentPayableAmount = typeof PAYMENT_AMOUNT !== 'undefined' ? PAYMENT_AMOUNT : 2499;
-    summary.style.display = 'none';
+
+    const discountRow = document.getElementById('discountRow');
+    const finalAmt    = document.getElementById('finalAmt');
+    const headerAmt   = document.getElementById('headerAmount');
+
+    if (discountRow) discountRow.style.display = 'none';
+    if (finalAmt)    finalAmt.textContent      = getFormattedAmount(currentPayableAmount);
+    if (headerAmt)   headerAmt.textContent     = getFormattedAmount(currentPayableAmount);
+
     updatePayButtons();
   }
+}
+
+
+// ── Cancel / Remove Promo ──
+function cancelPromo() {
+  appliedPromo         = null;
+  currentPayableAmount = typeof PAYMENT_AMOUNT !== 'undefined' ? PAYMENT_AMOUNT : 2499;
+
+  // Clear status badge
+  const status = document.getElementById('promoStatus');
+  if (status) status.innerHTML = '';
+
+  // Re-enable input and apply button
+  const promoInput = document.getElementById('promoInput');
+  const applyBtn   = document.querySelector('.promo-apply-btn');
+  if (promoInput) { promoInput.disabled = false; promoInput.value = ''; }
+  if (applyBtn)   applyBtn.disabled = false;
+
+  // ── Reset the toggle button back to its original state ──
+  const promoToggle = document.querySelector('.promo-toggle');
+  if (promoToggle) {
+    promoToggle.innerHTML = `
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+        <line x1="7" y1="7" x2="7.01" y2="7"/>
+      </svg>
+      Have a promo code?
+      <span id="promoChevron" style="margin-left:auto; font-size:16px; transition:transform 0.2s;">▾</span>
+    `;
+    promoToggle.style.borderColor = '';
+    promoToggle.style.background  = '';
+    promoToggle.style.borderStyle = 'dashed';
+  }
+
+  // ── Close the promo field so it doesn't stay open ──
+  const promoField = document.getElementById('promoField');
+  if (promoField) promoField.classList.remove('open');
+
+  // ── Reset price summary ──
+  const discountRow = document.getElementById('discountRow');
+  const finalAmt    = document.getElementById('finalAmt');
+  const headerAmt   = document.getElementById('headerAmount');
+  const subtotalEl  = document.getElementById('subtotalAmt');
+
+  if (discountRow) discountRow.style.display = 'none';
+  if (finalAmt)    finalAmt.textContent      = getFormattedAmount(currentPayableAmount);
+  if (headerAmt)   headerAmt.textContent     = getFormattedAmount(currentPayableAmount);
+  if (subtotalEl)  subtotalEl.textContent    = getFormattedAmount(currentPayableAmount);
+
+  updatePayButtons();
 }
 
 function updatePayButtons() {

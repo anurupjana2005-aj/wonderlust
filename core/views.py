@@ -83,8 +83,13 @@ def booking(request):
     if request.method == 'POST':
         # Save traveler details to session
         traveler_name = request.POST.get('fullname', '').strip()
+        adults = int(request.POST.get('adults', 1))
+        children = int(request.POST.get('children', 0))
+        num_persons = adults + children
+        
         if traveler_name:
             request.session['traveler_name'] = traveler_name
+        request.session['num_persons'] = num_persons
         return redirect('payment')
     
     # Get package from URL parameter
@@ -126,14 +131,20 @@ def payment(request):
     # Get package price from session
     selected_package = request.session.get('selected_package')
     package_price = request.session.get('selected_package_price')
+    num_persons = request.session.get('num_persons', 1)
     
     if not selected_package or not package_price:
         messages.error(request, 'Please complete your booking first.')
         return redirect('booking')
     
+    # Calculate total amount based on number of persons
+    total_amount = package_price * num_persons
+    
     context = {
         'selected_package': selected_package,
-        'package_price': package_price,
+        'package_price': total_amount,  # Pass the total amount
+        'base_price': package_price,    # Keep base price for display
+        'num_persons': num_persons,
         'currency': '₹'
     }
     
@@ -198,13 +209,14 @@ def create_booking(request):
         selected_package = request.session.get('selected_package')
         selected_price = request.session.get('selected_package_price')
         traveler_name = request.session.get('traveler_name', '')
+        num_persons = request.session.get('num_persons', 1)
         
         if not selected_package or not selected_price:
             return JsonResponse({'success': False, 'message': 'Package not found in session'}, status=400)
         
         selected_package = selected_package.strip()
         default_image = 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=600'
-        final_amount = data.get('amount', selected_price)
+        final_amount = data.get('amount', selected_price * num_persons)
         booking = Booking.objects.create(
             user=request.user,
             package_name=selected_package,
@@ -213,13 +225,15 @@ def create_booking(request):
             payment_method=data.get('method', 'Online'),
             status='confirmed',
             traveler_name=traveler_name,
-            image_url=PACKAGE_IMAGES.get(selected_package, default_image)
+            image_url=PACKAGE_IMAGES.get(selected_package, default_image),
+            num_persons=num_persons
         )
         
         # Clear session
         request.session.pop('selected_package', None)
         request.session.pop('selected_package_price', None)
         request.session.pop('traveler_name', None)
+        request.session.pop('num_persons', None)
         
         return JsonResponse({'success': True, 'booking_id': booking.id}, status=200)
     except Exception as e:

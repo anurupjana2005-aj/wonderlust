@@ -1,4 +1,4 @@
-{% load static %}
+{% load static humanize %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,6 +9,8 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
   <script>
     const PAYMENT_AMOUNT = parseInt("{{ package_price|default:2499|escapejs }}") || 2499;
+    const BASE_PRICE = parseInt("{{ base_price|default:2499|escapejs }}") || 2499;
+    const NUM_PERSONS = parseInt("{{ num_persons|default:1|escapejs }}") || 1;
     const CURRENCY = "{{ currency|default:'₹'|escapejs }}" || "₹";
     const PACKAGE_NAME = "{{ selected_package|default:'Package'|escapejs }}" || "Package";
     const SESSION_DURATION = 600; // 10 minutes
@@ -53,7 +55,7 @@
           <line x1="7" y1="7" x2="7.01" y2="7"/>
         </svg>
         Have a promo code?
-        <span id="promoChevron">▾</span>
+        <span id="promoChevron" style="margin-left:auto; font-size:16px; transition:transform 0.2s;">▾</span>
       </button>
       <div class="promo-field" id="promoField">
         <input type="text" id="promoInput" placeholder="Enter promo code" oninput="this.value=this.value.toUpperCase()" />
@@ -63,18 +65,26 @@
     </div>
 
     <!-- Price Summary -->
-    <div class="price-summary" id="priceSummary" style="display:none;">
+    <div class="price-summary" id="priceSummary">
       <div class="price-row">
-        <span>Original Amount</span>
-        <span id="origAmt">₹2,499</span>
+        <span>Base Price (per person)</span>
+        <span id="basePriceAmt">₹{{ base_price|default:2499|intcomma }}</span>
       </div>
-      <div class="price-row discount">
+      <div class="price-row">
+        <span>Number of Persons</span>
+        <span id="numPersons">{{ num_persons|default:1 }}</span>
+      </div>
+      <div class="price-row">
+        <span>Subtotal</span>
+        <span id="subtotalAmt">₹{{ package_price|default:2499|intcomma }}</span>
+      </div>
+      <div class="price-row discount" id="discountRow" style="display:none;">
         <span id="discountLabel">Discount</span>
         <span id="discountAmt">-₹0</span>
       </div>
       <div class="price-row total">
         <span>Total Payable</span>
-        <span id="finalAmt">₹2,499</span>
+        <span id="finalAmt">₹{{ package_price|default:2499|intcomma }}</span>
       </div>
     </div>
 
@@ -309,7 +319,6 @@
         document.getElementById('upiPayBtn').textContent = 'Pay ' + formattedAmount;
         document.getElementById('cardPayBtn').textContent = 'Pay ' + formattedAmount + ' securely';
         document.getElementById('waAmountStep').textContent = 'Confirm the payment amount of ' + formattedAmount;
-        document.getElementById('origAmt').textContent = formattedAmount;
         document.getElementById('finalAmt').textContent = formattedAmount;
         document.getElementById('bookingDate').textContent = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
       } catch (err) {

@@ -428,8 +428,8 @@
                             <div class="meta-value">{{ booking.payment_method }}</div>
                         </div>
                         <div class="meta-item">
-                            <div class="meta-label">Traveler</div>
-                            <div class="meta-value">{{ booking.traveler_name|default:request.user.first_name }}</div>
+                            <div class="meta-label">Persons</div>
+                            <div class="meta-value">{{ booking.num_persons }}</div>
                         </div>
                         <div class="meta-item">
                             <div class="meta-label">Total Paid</div>
