@@ -7,7 +7,7 @@ class BookingAdmin(admin.ModelAdmin):
     list_display = (
         'transaction_id', 'traveler_name', 'phone',
         'package_name', 'num_adults', 'num_children', 'num_persons',
-        'amount', 'payment_method', 'status', 'get_ist_time'
+        'departure_date', 'return_date', 'amount', 'payment_method', 'status', 'get_ist_time'
     )
     list_filter = ('status', 'booking_date', 'payment_method')
     search_fields = ('transaction_id', 'user__email', 'package_name', 'traveler_name', 'phone')
@@ -25,6 +25,9 @@ class BookingAdmin(admin.ModelAdmin):
         }),
         ('Package Information', {
             'fields': ('package_name', 'num_adults', 'num_children', 'num_persons', 'amount')
+        }),
+        ('Trip Dates', {
+            'fields': ('departure_date', 'return_date')
         }),
         ('Payment Information', {
             'fields': ('transaction_id', 'payment_method', 'status')

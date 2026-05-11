@@ -21,6 +21,8 @@ class Booking(models.Model):
     num_persons = models.PositiveIntegerField(default=1)
     num_adults = models.PositiveIntegerField(default=1)    # ← new
     num_children = models.PositiveIntegerField(default=0)  # ← new
+    departure_date = models.DateField(null=True, blank=True)
+    return_date = models.DateField(null=True, blank=True)
 
     def __str__(self):
         return f"Booking {self.transaction_id} - {self.package_name}"

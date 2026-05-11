@@ -89,6 +89,8 @@ def booking(request):
         children      = int(request.POST.get('children', 0) or 0)
         total_adults  = fixed_adults + add_adults
         num_persons   = total_adults + children
+        departure_date = request.POST.get('start_date', '')
+        return_date = request.POST.get('end_date', '')
 
         if traveler_name:
             request.session['traveler_name'] = traveler_name
@@ -99,6 +101,8 @@ def booking(request):
         request.session['num_children']      = children
         request.session['num_persons']       = num_persons
         request.session['package_pax']       = fixed_adults
+        request.session['departure_date']    = departure_date
+        request.session['return_date']       = return_date
         return redirect('payment')
 
     # Get package from URL parameter
@@ -231,6 +235,8 @@ def create_booking(request):
         num_persons      = request.session.get('num_persons', 1)
         num_adults       = request.session.get('num_adults', 1)    # ← get adults
         num_children     = request.session.get('num_children', 0)  # ← get children
+        departure_date   = request.session.get('departure_date', '')
+        return_date      = request.session.get('return_date', '')
 
         if not selected_package or not selected_price:
             return JsonResponse({'success': False, 'message': 'Package not found in session'}, status=400)
@@ -252,6 +258,8 @@ def create_booking(request):
             num_persons     = num_persons,
             num_adults      = num_adults,    # ← save adults to DB
             num_children    = num_children,  # ← save children to DB
+            departure_date  = departure_date if departure_date else None,
+            return_date     = return_date if return_date else None,
         )
 
         # Clear session
@@ -264,6 +272,8 @@ def create_booking(request):
         request.session.pop('num_add_adults', None)
         request.session.pop('num_children', None)
         request.session.pop('package_pax', None)
+        request.session.pop('departure_date', None)
+        request.session.pop('return_date', None)
 
         return JsonResponse({'success': True, 'booking_id': booking.id}, status=200)
     except Exception as e:
